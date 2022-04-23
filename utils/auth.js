@@ -2,7 +2,7 @@ import GoTrue from "gotrue-js";
 
 export const auth = new GoTrue({
   APIUrl: process.env.NEXT_PUBLIC_AUTH_URL,
-  audience: "KONG_JWT_SECRETS_MAIN_KEY",
+  audience: process.env.NEXT_PUBLIC_AUTH_AUD,
   setCookie: false,
 });
 
