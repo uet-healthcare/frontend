@@ -9,4 +9,4 @@ COPY . .
 RUN pnpm build
 
 EXPOSE 80
-CMD [ "pnpm", "start", "-p", "80" ]
+CMD [ "pnpm", "start" ]
