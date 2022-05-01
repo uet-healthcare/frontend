@@ -2,75 +2,95 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github.css";
+import {
+  Box,
+  Code,
+  Divider,
+  Link,
+  ListItem,
+  OrderedList,
+  Table,
+  TableCaption,
+  Tbody,
+  Td,
+  Text,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
+  UnorderedList,
+} from "@chakra-ui/react";
 
 const h2Render = ({ node, children, className, ...props }) => (
-  <h3
-    className={[
-      className,
-      "font-bold font-heading text-lg md:text-2xl leading-normal text-gray-800",
-    ].join(" ")}
+  <Box
+    as="h3"
+    fontWeight="bold"
+    fontFamily="heading"
+    fontSize={{ base: "lg", sm: "2xl" }}
+    lineHeight="normal"
+    color="gray.800"
     {...props}
   >
     {children}
-  </h3>
+  </Box>
 );
 
 const components = {
   a: ({ node, children, className, ...props }) => (
-    <a className={[className, "text-rose-500 underline"].join(" ")} {...props}>
+    <Link color="red.500" textDecoration="underline" {...props}>
       {children}
-    </a>
+    </Link>
   ),
   blockquote: ({ node, children, className, ...props }) => (
-    <blockquote
-      className={[className, "border-l-4 px-20 text-gray-500 italic"].join(" ")}
+    <Box
+      as="blockquote"
+      borderLeft="4px"
+      borderStyle="solid"
+      borderColor="gray.300"
+      px="5"
+      color="gray.500"
+      textDecoration="italic"
       {...props}
     >
       {children}
-    </blockquote>
+    </Box>
   ),
   pre: ({ node, children, className, ...props }) => (
-    <pre
-      className={[
-        className,
-        "border p-12 rounded max-w-full overflow-auto text-sm",
-      ].join(" ")}
+    <Box
+      as="pre"
+      borderRadius="base"
+      sx={{ "& > code": { w: "full", p: "4" } }}
       {...props}
     >
       {children}
-    </pre>
+    </Box>
   ),
   code: ({ node, children, className, ...props }) => (
-    <code
-      className={[
-        className,
-        "font-mono bg-neutral-100 text-sm px-4 py-1 rounded text-gray-700",
-      ].join(" ")}
-      {...props}
-    >
+    <Code borderRadius="base" fontSize="sm" {...props}>
       {children}
-    </code>
+    </Code>
   ),
   em: ({ node, children, className, ...props }) => (
-    <em className={[className, ""].join(" ")} {...props}>
-      {children}
-    </em>
+    <em {...props}>{children}</em>
   ),
   strong: ({ node, children, className, ...props }) => (
-    <strong className={[className, "text-gray-700"].join(" ")} {...props}>
+    <Box as="strong" color="gray.700" {...props}>
       {children}
-    </strong>
+    </Box>
   ),
   h1: ({ node, children, className, ...props }) => (
-    <h2
-      className={[
-        className,
-        "font-heading font-extrabold py-4 md:py-8 text-lg md:text-3xl md:leading-normal text-gray-800",
-      ].join(" ")}
+    <Box
+      as="h2"
+      fontFamily="heading"
+      fontWeight="extrabold"
+      py={{ base: "1", md: "2" }}
+      fontSize={{ base: "lg", sm: "3xl" }}
+      lineHeight={{ sm: "normal" }}
+      color="gray.800"
       {...props}
     >
       {children}
-    </h2>
+    </Box>
   ),
   h2: h2Render,
   h3: h2Render,
@@ -78,68 +98,65 @@ const components = {
   h5: h2Render,
   h6: h2Render,
   hr: ({ node, children, className, ...props }) => (
-    <hr className={[className, ""].join(" ")} {...props}>
-      {children}
-    </hr>
+    <Divider {...props}>{children}</Divider>
   ),
   li: ({ node, children, className, ...props }) => (
-    <li className={[className, ""].join(" ")} {...props}>
+    <ListItem sx={{ "& > *+*": { mt: "2" } }} {...props}>
       {children}
-    </li>
+    </ListItem>
   ),
   ol: ({ node, children, className, ...props }) => (
-    <ol
-      className={[
-        className,
-        "text-sm space-y-8 md:space-y-10 md:text-base md:leading-relaxed list-decimal list-outside ml-36",
-      ].join(" ")}
+    <OrderedList
+      spacing={{ base: "2", sm: "2.5" }}
+      lineHeight={{ sm: "tall" }}
       {...props}
     >
       {children}
-    </ol>
+    </OrderedList>
   ),
   ul: ({ node, children, className, ...props }) => (
-    <ul
-      className={[
-        className,
-        "text-sm space-y-8 md:space-y-10 md:text-base md:leading-relaxed list-disc list-outside ml-36",
-      ].join(" ")}
+    <UnorderedList
+      spacing={{ base: "2", sm: "2.5" }}
+      lineHeight={{ sm: "tall" }}
       {...props}
     >
       {children}
-    </ul>
+    </UnorderedList>
   ),
   p: ({ node, children, className, ...props }) => (
-    <p
-      className={[
-        className,
-        "md:text-lg leading-relaxed md:leading-loose",
-      ].join(" ")}
+    <Text
+      fontSize={{ sm: "lg" }}
+      lineHeight={{ base: "tall", sm: "taller" }}
       {...props}
     >
       {children}
-    </p>
+    </Text>
   ),
   table: ({ node, children, className, ...props }) => (
-    <table
-      className={[
-        className,
-        "border border-collapse max-w-full overflow-auto",
-      ].join(" ")}
-      {...props}
-    >
-      {children}
-    </table>
+    <Table {...props}>{children}</Table>
+  ),
+  caption: ({ node, children, className, ...props }) => (
+    <TableCaption {...props}>{children}</TableCaption>
+  ),
+  thead: ({ node, children, className, ...props }) => (
+    <Thead {...props}>{children}</Thead>
+  ),
+  tbody: ({ node, children, className, ...props }) => (
+    <Tbody {...props}>{children}</Tbody>
+  ),
+  tfoot: ({ node, children, className, ...props }) => (
+    <Tfoot {...props}>{children}</Tfoot>
+  ),
+  tr: ({ node, children, className, ...props }) => (
+    <Tr {...props}>{children}</Tr>
   ),
   th: ({ node, children, className, ...props }) => (
-    <th className={[className, "px-16 py-8 border"].join(" ")} {...props}>
-      {children}
-    </th>
+    <Th {...props}>{children}</Th>
   ),
   td: ({ node, children, className, ...props }) => (
-    <td className={[className, "px-16 py-8 border"].join(" ")} {...props}>
+    <Td fontSize="sm" {...props}>
       {children}
-    </td>
+    </Td>
   ),
 };
 

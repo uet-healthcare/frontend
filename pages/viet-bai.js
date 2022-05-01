@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Editor from "components/editor";
 import { useRef } from "react";
+import { Box, Button, Flex, Input } from "@chakra-ui/react";
 
 export default function WritePost() {
   const router = useRouter();
@@ -70,38 +71,60 @@ export default function WritePost() {
 
   return (
     <>
-      <div className="w-full max-w-screen-sm px-16 md:px-0 md:mx-auto">
-        <div className="flex flex-col gap-12 py-32">
-          <div className="flex items-center gap-12 text-gray-400 hover:text-gray-600">
-            <button className="text-xl" onClick={() => router.back()}>
-              &larr;
-            </button>
-          </div>
-          <div className="flex items-center justify-between mb-24">
-            <h1 className="mt-0 text-2xl font-semibold text-gray-600 text-heading">
-              Tạo bài viết mới
-            </h1>
-            <button
-              className="px-16 py-8 text-white rounded bg-rose-300 hover:bg-rose-400 disabled:cursor-not-allowed"
-              disabled={!title || !content}
-              onClick={handlePost}
+      <Flex
+        alignItems="baseline"
+        justifyContent="space-between"
+        mx="auto"
+        px={{ base: "4", md: "0" }}
+        w="full"
+        maxW="container.sm"
+      >
+        <Flex flexDirection="column" gap="3" py="8" w="full">
+          <Flex
+            alignItems="center"
+            gap="3"
+            color="gray.400"
+            _hover={{ color: "gray.600" }}
+          >
+            <Button
+              variant="ghost"
+              fontSize="xl"
+              onClick={() => {
+                console.log(window.history.length);
+                if (window.history.length > 2) router.back();
+                else router.push("/");
+              }}
             >
+              &larr;
+            </Button>
+          </Flex>
+          <Flex alignItems="center" justifyContent="space-between" mb="6">
+            <Box
+              as="h1"
+              fontSize="2xl"
+              fontWeight="semibold"
+              color="gray.600"
+              fontFamily="heading"
+            >
+              Tạo bài viết mới
+            </Box>
+            <Button disabled={!title || !content} onClick={handlePost}>
               Đăng bài
-            </button>
-          </div>
-          <input
-            className="w-full px-16 py-8 border rounded-lg"
+            </Button>
+          </Flex>
+          <Input
             placeholder="Tiêu đề bài viết"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           {(!content || content === "\\\n") && (
             <div>
-              <input
+              <Box
+                as="input"
+                display="none"
                 ref={uploadInputRef}
                 type="file"
                 accept="text/plain, text/markdown"
-                className="hidden"
                 onChange={(e) => {
                   if (!e.target.files.length) {
                     return;
@@ -126,34 +149,48 @@ export default function WritePost() {
                 }}
               />
               {isImport && (
-                <input
-                  className="w-full px-16 py-8 mb-10 border rounded-lg"
+                <Input
+                  mb="2.5"
                   placeholder="https://example.com/duong-dan-den-file-markdown.md"
                   value={importURL}
                   onChange={(e) => setImportURL(e.target.value)}
                 />
               )}
-              <div className="space-x-4 text-sm text-gray-500">
+              <Flex gap="1" fontSize="sm" color="gray.500">
                 <span>Bạn đã có bài viết?</span>
-                <button
+                <Box
+                  as="button"
+                  type="button"
+                  textDecoration="underline"
                   className="underline"
                   onClick={() => uploadInputRef.current.click()}
                 >
                   upload
-                </button>
+                </Box>
                 <span>hoặc</span>
-                <button
-                  className="underline"
+                <Box
+                  as="button"
+                  type="button"
+                  textDecoration="underline"
                   onClick={() => setIsImport((value) => !value)}
                 >
                   import
-                </button>
+                </Box>
                 <span>file của bạn.</span>
                 <span>(chỉ hỗ trợ định dạng markdown)</span>
-              </div>
+              </Flex>
             </div>
           )}
-          <div className="pb-32 mt-16 space-y-16 leading-relaxed text-gray-900 md:text-lg md:space-y-24">
+          <Flex
+            flexDirection="col"
+            pb="8"
+            mt="4"
+            gap={{ base: "4", md: "6" }}
+            lineHeight="tall"
+            color="gray.900"
+            fontSize="lg"
+            spellCheck="false"
+          >
             {isImporting ? (
               <div>loading...</div>
             ) : (
@@ -163,9 +200,9 @@ export default function WritePost() {
                 onChange={(value) => setContent(value)}
               />
             )}
-          </div>
-        </div>
-      </div>
+          </Flex>
+        </Flex>
+      </Flex>
     </>
   );
 }

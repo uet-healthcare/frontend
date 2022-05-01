@@ -1,3 +1,4 @@
+import { Box, Button, Flex, Input } from "@chakra-ui/react";
 import { GoogleLoginButton } from "components/google-login-button";
 import AvatarDropdown from "components/header-avatar-dropdown";
 import Link from "next/link";
@@ -29,49 +30,78 @@ export default function ChangePassword() {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full max-w-screen-sm px-16 md:px-0 md:mx-auto">
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        px={{ base: "16px", md: 0 }}
+        w="full"
+        maxW="container.sm"
+        mx="auto"
+      >
         <Link href="/">
-          <a className="py-12 text-xl font-bold font-body">
-            <span className="text-gray-900">vietlach</span>
-            <span className="text-rose-400">.vn</span>
+          <a>
+            <Box py="3" fontSize="xl" fontWeight="bold">
+              <Box as="span" color="gray.700">
+                vietlach
+              </Box>
+              <Box as="span" color="red.400">
+                .vn
+              </Box>
+            </Box>
           </a>
         </Link>
         <AvatarDropdown />
-      </div>
+      </Flex>
       <hr />
-      <div className="max-w-screen-sm mx-16 space-y-16 leading-relaxed text-gray-900 md:mx-auto md:text-lg md:space-y-24">
-        <div className="flex flex-col items-center max-w-xs gap-16 mx-auto mt-64">
-          <form className="space-y-20" onSubmit={handleUpdate}>
-            <div className="space-y-12">
-              <input
-                className="w-full px-16 py-12 text-sm border rounded-lg"
+      <Flex
+        maxW="container.sm"
+        mx={{ base: "4", md: "auto" }}
+        flexDirection="column"
+        columnGap="4"
+        rowGap={{ base: "4", md: "8" }}
+        lineHeight="tall"
+        color="gray.900"
+        fontSize={{ md: "lg" }}
+      >
+        <Flex
+          flexDirection="column"
+          alignItems="center"
+          gap="4"
+          mt="12"
+          mx={{ base: "auto", sm: "32" }}
+        >
+          <Flex
+            as="form"
+            flexDirection="column"
+            gap="3"
+            w="full"
+            onSubmit={handleUpdate}
+          >
+            <Flex flexDirection="column" gap="3">
+              <Input
                 placeholder="Mật khẩu cũ"
                 value={currentPassword}
                 type="password"
                 onChange={(e) => setCurrentPassword(e.target.value)}
               />
-              <input
-                className="w-full px-16 py-12 text-sm border rounded-lg"
+              <Input
                 placeholder="Mật khẩu mới"
                 value={newPassword}
                 type="password"
                 onChange={(e) => setNewPassword(e.target.value)}
               />
-              <input
-                className="w-full px-16 py-12 text-sm border rounded-lg"
+              <Input
                 placeholder="Xác nhận mật khẩu mới"
                 value={newPasswordAgain}
                 type="password"
                 pattern={newPassword}
                 onChange={(e) => setNewPasswordAgain(e.target.value)}
               />
-            </div>
-            <button className="w-full px-16 py-8 text-white rounded bg-rose-300 hover:bg-rose-400 disabled:cursor-not-allowed">
-              Cập nhật
-            </button>
-          </form>
-        </div>
-      </div>
+            </Flex>
+            <Button>Cập nhật</Button>
+          </Flex>
+        </Flex>
+      </Flex>
     </>
   );
 }

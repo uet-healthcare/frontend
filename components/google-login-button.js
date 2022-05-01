@@ -1,10 +1,14 @@
+import { Box, Button, Flex } from "@chakra-ui/react";
 import { auth } from "utils/auth";
 
 const googleIconSvg = (
-  <svg
+  <Box
+    as="svg"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 48 48"
+    w="5"
+    h="5"
     className="w-20 h-20"
   >
     <g>
@@ -26,19 +30,31 @@ const googleIconSvg = (
       ></path>
       <path fill="none" d="M0 0h48v48H0z"></path>
     </g>
-  </svg>
+  </Box>
 );
 
 export const GoogleLoginButton = ({ children }) => {
   return (
-    <button
+    <Button
+      variant="ghost"
       onClick={() =>
         window.open(auth.loginExternalUrl("google"), "_self").focus()
       }
-      className="flex items-center justify-center w-full gap-12 px-16 py-8 text-sm text-center border rounded"
+      alignItems="center"
+      justifyContent="center"
+      w="full"
+      gap="3"
+      px="4"
+      py="2"
+      fontSize="sm"
+      textAlign="center"
+      border="1px"
+      borderStyle="solid"
+      borderColor="gray.200"
+      borderRadius="base"
     >
       {googleIconSvg}
       {children}
-    </button>
+    </Button>
   );
 };

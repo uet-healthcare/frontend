@@ -1,5 +1,14 @@
+import {
+  Box,
+  Divider,
+  Flex,
+  Image,
+  StackDivider,
+  VStack,
+} from "@chakra-ui/react";
 import AvatarDropdown from "components/header-avatar-dropdown";
 import Link from "next/link";
+
 import { Fragment, useEffect, useState } from "react";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
@@ -61,67 +70,128 @@ export default function Home({ posts: initialPosts }) {
 
   return (
     <>
-      <div className="flex items-baseline justify-between w-full max-w-screen-sm px-16 md:px-0 md:mx-auto">
+      <Flex
+        alignItems="baseline"
+        justifyContent="space-between"
+        mx="auto"
+        px={{ base: "16px", md: 0 }}
+        w="full"
+        maxW="container.sm"
+      >
         <Link href="/">
-          <a className="py-12 text-xl font-bold font-body">
-            <span className="text-gray-700">vietlach</span>
-            <span className="text-rose-400">.vn</span>
+          <a>
+            <Box py="3" fontSize="xl" fontWeight="bold">
+              <Box as="span" color="gray.700">
+                vietlach
+              </Box>
+              <Box as="span" color="red.400">
+                .vn
+              </Box>
+            </Box>
           </a>
         </Link>
-        <div className="flex items-center gap-12 text-sm text-gray-600">
+        <Flex alignItems="center" gap="3" fontSize="sm" color="gray.600">
           <Link href={currentUser ? "/viet-bai" : "/dang-nhap"}>
-            <a className="hover:text-gray-900">
-              {currentUser ? "Viết bài" : "Đăng nhập"}
+            <a>
+              <Box _hover={{ color: "gray.900" }}>
+                {currentUser ? "Viết bài" : "Đăng nhập"}
+              </Box>
             </a>
           </Link>
           {currentUser && <AvatarDropdown />}
-        </div>
-      </div>
+        </Flex>
+      </Flex>
       <hr />
-      <div className="max-w-screen-sm mx-16 space-y-16 leading-relaxed text-gray-900 md:mx-auto md:text-lg md:space-y-24">
-        <div className="flex flex-col divide-y md:mt-12">
+      <Flex
+        maxW="container.sm"
+        mx={{ base: "4", md: "auto" }}
+        flexDirection="column"
+        columnGap="4"
+        rowGap={{ base: "4", md: "8" }}
+        lineHeight="tall"
+        color="gray.900"
+        fontSize={{ md: "lg" }}
+      >
+        <VStack divider={<Divider />} mt={{ md: "3" }}>
           {posts &&
             posts.map((post) => (
               <Fragment key={post.post_id}>
-                <div className="flex flex-col gap-16 py-32">
-                  <Link href={getPostPath(post.post_id, post.title)}>
-                    <a>
-                      <div className="text-xl font-bold text-gray-800 font-heading hover:underline">
-                        {post.title}
-                      </div>
-                    </a>
-                  </Link>
-                  <div className="text-base">{post.content}...</div>
-                  <div className="flex items-center gap-16">
-                    <div className="flex flex-wrap items-center gap-10 text-sm text-gray-500">
+                <VStack alignItems="left" gap="1" py="5">
+                  <Box
+                    as="span"
+                    fontSize="xl"
+                    fontWeight="bold"
+                    color="gray.800"
+                    fontFamily="heading"
+                  >
+                    <Link
+                      href={getPostPath(
+                        post.post_id,
+                        post.author.username,
+                        post.title
+                      )}
+                    >
+                      <a>
+                        <Box as="span" _hover={{ textDecoration: "underline" }}>
+                          {post.title}
+                        </Box>
+                      </a>
+                    </Link>
+                  </Box>
+                  <div>{post.content}...</div>
+                  <Flex spacing="4" alignItems="center">
+                    <Flex
+                      flexWrap="wrap"
+                      alignItems="center"
+                      gap="2.5"
+                      fontSize="sm"
+                      color="gray.600"
+                    >
                       <Link href={`/${post.author.username}`}>
-                        <a className="flex items-center gap-10 group">
-                          <div className="inline-flex items-center justify-center flex-shrink-0 w-32 h-32 rounded-lg bg-rose-50 text-rose-800">
-                            {post.author.avatar_url ? (
-                              // eslint-disable-next-line
-                              <img
-                                src={post.author.avatar_url}
-                                className="w-32 h-32 rounded-lg"
-                                referrerPolicy="no-referrer"
-                              />
-                            ) : (
-                              post.author.full_name?.[0]
-                            )}
-                          </div>
-                          <div className="group-hover:underline">
-                            {post.author.full_name}
-                          </div>
+                        <a>
+                          <Flex alignItems="center" gap="2.5" role="group">
+                            <Flex alignItems="center" gap="2.5">
+                              <Flex
+                                alignItems="center"
+                                justifyContent="center"
+                                flexShrink="0"
+                                w="8"
+                                h="8"
+                                borderRadius="lg"
+                                backgroundColor="red.50"
+                                color="red.800"
+                              >
+                                {post.author.avatar_url ? (
+                                  // eslint-disable-next-line
+                                  <Image
+                                    src={post.author.avatar_url}
+                                    w="8"
+                                    h="8"
+                                    borderRadius="lg"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                ) : (
+                                  post.author.full_name?.[0]
+                                )}
+                              </Flex>
+                              <Box
+                                _groupHover={{ textDecoration: "underline" }}
+                              >
+                                {post.author.full_name}
+                              </Box>
+                            </Flex>
+                          </Flex>
                         </a>
                       </Link>
                       <div>&#183;</div>
                       <div>{post.created_time}</div>
-                    </div>
-                  </div>
-                </div>
+                    </Flex>
+                  </Flex>
+                </VStack>
               </Fragment>
             ))}
-        </div>
-      </div>
+        </VStack>
+      </Flex>
     </>
   );
 }

@@ -1,13 +1,17 @@
-import DropdownMenu from "components/ui/dropdown-menu";
-import {
-  AvatarIcon,
-  ExitIcon,
-  GearIcon,
-  MixerHorizontalIcon,
-} from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { auth } from "utils/auth";
 import { DEFAULT_USER_METADATA } from "utils/constants";
+import {
+  Flex,
+  Icon,
+  Image,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from "@chakra-ui/react";
+import { BiCog, BiLock, BiLogOut, BiUser } from "react-icons/bi";
+import Link from "next/link";
 
 export default function AvatarDropdown({}) {
   const [userMetaData, setUserMetaData] = useState(DEFAULT_USER_METADATA);
@@ -17,27 +21,77 @@ export default function AvatarDropdown({}) {
   }, []);
 
   return (
-    <DropdownMenu
-      items={[
-        {
-          label: "Trang cá nhân",
-          icon: <AvatarIcon className="mr-8 h-14 w-14 " />,
-          link: `/${userMetaData.username}`,
-        },
-        {
-          label: "Cập nhật thông tin",
-          icon: <MixerHorizontalIcon className="mr-8 h-14 w-14 " />,
-          link: "/cap-nhat-thong-tin",
-        },
-        {
-          label: "Đổi mật khẩu",
-          icon: <GearIcon className="mr-8 h-14 w-14 " />,
-          link: "/doi-mat-khau",
-        },
-        {
-          label: "Đăng xuất",
-          icon: <ExitIcon className="mr-8 h-14 w-14 " />,
-          onClick: () => {
+    <Menu>
+      <MenuButton>
+        <Flex
+          alignItems="center"
+          justifyContent="center"
+          flexShrink="0"
+          borderRadius="lg"
+          w="7"
+          h="7"
+          backgroundColor="red.50"
+          color="red.800"
+        >
+          {userMetaData.avatar_url ? (
+            <Image
+              src={userMetaData.avatar_url}
+              flexShrink="0"
+              borderRadius="lg"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            userMetaData.full_name?.[0] || "G"
+          )}
+        </Flex>
+      </MenuButton>
+      <MenuList>
+        <Link href={`/${userMetaData.username}`}>
+          <a>
+            <MenuItem
+              icon={
+                <Flex alignItems="center">
+                  <Icon as={BiUser} w="3.5" h="3.5" />
+                </Flex>
+              }
+            >
+              Trang cá nhân
+            </MenuItem>
+          </a>
+        </Link>
+        <Link href="/cap-nhat-thong-tin">
+          <a>
+            <MenuItem
+              icon={
+                <Flex alignItems="center">
+                  <Icon as={BiCog} w="3.5" h="3.5" />
+                </Flex>
+              }
+            >
+              Cập nhật thông tin
+            </MenuItem>
+          </a>
+        </Link>
+        <Link href="/doi-mat-khau">
+          <a>
+            <MenuItem
+              icon={
+                <Flex alignItems="center">
+                  <Icon as={BiLock} w="3.5" h="3.5" />
+                </Flex>
+              }
+            >
+              Đổi mật khẩu
+            </MenuItem>
+          </a>
+        </Link>
+        <MenuItem
+          icon={
+            <Flex alignItems="center">
+              <Icon as={BiLogOut} w="3.5" h="3.5" />
+            </Flex>
+          }
+          onClick={() => {
             auth
               .currentUser()
               .logout()
@@ -48,21 +102,11 @@ export default function AvatarDropdown({}) {
               .catch((error) => {
                 alert(error);
               });
-          },
-        },
-      ]}
-    >
-      <div className="inline-flex items-center justify-center flex-shrink-0 rounded-lg w-28 h-28 bg-rose-50 text-rose-800">
-        {userMetaData.avatar_url ? (
-          <img
-            src={userMetaData.avatar_url}
-            className="flex-shrink-0 rounded-lg w-28 h-28"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          userMetaData.full_name?.[0] || "G"
-        )}
-      </div>
-    </DropdownMenu>
+          }}
+        >
+          Đăng xuất
+        </MenuItem>
+      </MenuList>
+    </Menu>
   );
 }

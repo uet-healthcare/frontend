@@ -1,4 +1,4 @@
-export const getPostPath = (id, title) => {
+export const getPostPath = (id, username, title) => {
   if (!id || !title) return "/";
 
   const allowed_symbols = [" ", ".", "-", "_"];
@@ -14,7 +14,7 @@ export const getPostPath = (id, title) => {
     .map((el) => (allowed_symbols.includes(el) ? "-" : el))
     .join("");
 
-  return `/bai-viet/${route}-${id}`;
+  return `/${username}/${route}-${id}`;
 };
 
 export const getPostIDFromPath = (path) => {

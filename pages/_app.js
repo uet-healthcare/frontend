@@ -1,9 +1,11 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import ErrorBoundary from "components/error-boundary";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import "../styles/globals.css";
+import { chakraExtendedTheme } from "styles/theme/theme";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -54,9 +56,11 @@ function MyApp({ Component, pageProps }) {
     if (!path) return;
   }, [router]);
   return (
-    <ErrorBoundary>
-      <Component {...pageProps} />
-    </ErrorBoundary>
+    <ChakraProvider theme={chakraExtendedTheme}>
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
+    </ChakraProvider>
   );
 }
 

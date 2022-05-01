@@ -1,7 +1,8 @@
-import { Pencil1Icon } from "@radix-ui/react-icons";
+import { Box, Button, Flex, Icon, Input, VStack } from "@chakra-ui/react";
 import AvatarDropdown from "components/header-avatar-dropdown";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BiPencil } from "react-icons/bi";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import { removeVietnameseTones } from "utils/string";
@@ -135,94 +136,124 @@ export default function UpdateInfo() {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full max-w-screen-sm px-16 md:px-0 md:mx-auto">
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        px={{ base: "16px", md: 0 }}
+        w="full"
+        maxW="container.sm"
+        mx="auto"
+      >
         <Link href="/">
-          <a className="py-12 text-xl font-bold font-body">
-            <span className="text-gray-900">vietlach</span>
-            <span className="text-rose-400">.vn</span>
+          <a>
+            <Box py="3" fontSize="xl" fontWeight="bold">
+              <Box as="span" color="gray.700">
+                vietlach
+              </Box>
+              <Box as="span" color="red.400">
+                .vn
+              </Box>
+            </Box>
           </a>
         </Link>
         <AvatarDropdown />
-      </div>
+      </Flex>
       <hr />
-      <div className="max-w-screen-sm mx-16 space-y-16 leading-relaxed text-gray-900 md:mx-auto md:text-lg md:space-y-24">
-        <div className="flex flex-col items-center max-w-xs gap-16 mx-auto mt-64">
-          <form className="w-full space-y-20" onSubmit={handleUpdate}>
-            <div className="space-y-12">
-              <div>
-                <div className="mb-4 text-sm font-semibold text-gray-500">
-                  Tên của bạn
-                </div>
-                <input
-                  className="w-full px-16 py-12 text-sm border rounded-lg"
-                  placeholder="Bạn tên là gì nè?"
-                  value={fullname}
-                  onChange={(e) => setFullname(e.target.value)}
-                />
-                {error.fullname && (
-                  <div className="mt-4 text-sm text-red-600">
-                    {error.fullname}
-                  </div>
-                )}
-              </div>
-              {isProcessing.editUsername && (
-                <div className="w-full">
-                  <div className="mb-4 text-sm font-semibold text-gray-500">
-                    Username
-                  </div>
-                  <input
-                    className="w-full px-16 py-12 text-sm border rounded-lg"
-                    placeholder="Username của bạn"
-                    value={username}
-                    pattern="[a-zA-Z0-9.-_]+"
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                  {!isProcessing.checkUsername ? (
-                    error.username && (
-                      <div className="mt-4 text-sm text-red-600">
-                        {error.username}
-                      </div>
-                    )
-                  ) : (
-                    <div className="mt-4 text-sm text-gray-500">
-                      Đang kiểm tra...
-                    </div>
-                  )}
-                </div>
+      <Flex
+        maxW="container.sm"
+        mx={{ base: "4", md: "auto" }}
+        mt="12"
+        flexDirection="column"
+        gap="4"
+        rowGap={{ base: "4", md: "8" }}
+        lineHeight="tall"
+        color="gray.900"
+        fontSize={{ md: "lg" }}
+      >
+        <Box as="form" mx={{ sm: "32" }} onSubmit={handleUpdate}>
+          <Flex flexDirection="column" w="full" gap="4">
+            <Box>
+              <Box mb="1" fontSize="sm" fontWeight="semibold" color="gray.500">
+                Tên của bạn
+              </Box>
+              <Input
+                placeholder="Bạn tên là gì nè?"
+                value={fullname}
+                onChange={(e) => setFullname(e.target.value)}
+              />
+              {error.fullname && (
+                <Box mt="1" fontSize="sm" color="red.600">
+                  {error.fullname}
+                </Box>
               )}
-              {username &&
-                !isProcessing.checkUsername &&
-                (!isProcessing.editUsername || !error.username) && (
-                  <div className="text-sm text-gray-500">
-                    <div>Trang cá nhân của bạn sẽ là:</div>
-                    <div className="flex items-center w-full gap-12">
-                      <strong className="font-semibold break-all">
-                        https://vietlach.vn/{username || "username"}
-                      </strong>
-                      {!isProcessing.editUsername && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setIsProcessing((prevState) => ({
-                              ...prevState,
-                              editUsername: true,
-                            }))
-                          }
-                          className="text-sm"
-                        >
-                          <Pencil1Icon />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+            </Box>
+            {isProcessing.editUsername && (
+              <Box w="full">
+                <Box
+                  mb="1"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  color="gray.500"
+                >
+                  Username
+                </Box>
+                <Input
+                  placeholder="Username của bạn"
+                  value={username}
+                  pattern="[a-zA-Z0-9.-_]+"
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                {!isProcessing.checkUsername ? (
+                  error.username && (
+                    <Box mt="1" fontSize="sm" color="red.600">
+                      {error.username}
+                    </Box>
+                  )
+                ) : (
+                  <Box mt="1" fontSize="sm" color="gray.500">
+                    Đang kiểm tra...
+                  </Box>
                 )}
-            </div>
-            <button className="w-full px-16 py-8 text-white rounded bg-rose-300 hover:bg-rose-400 disabled:cursor-not-allowed">
-              Cập nhật
-            </button>
-          </form>
-        </div>
-      </div>
+              </Box>
+            )}
+            {username &&
+              !isProcessing.checkUsername &&
+              (!isProcessing.editUsername || !error.username) && (
+                <Flex gap="1" fontSize="sm" color="gray.500">
+                  <Box w="full">
+                    <Box>Trang cá nhân của bạn sẽ là:</Box>
+                    <Box
+                      as="strong"
+                      fontWeight="semibold"
+                      wordBreak="break-all"
+                    >
+                      https://vietlach.vn/{username || "username"}
+                    </Box>
+                  </Box>
+                  <Flex alignItems="center" gap="3">
+                    {!isProcessing.editUsername && (
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() =>
+                          setIsProcessing((prevState) => ({
+                            ...prevState,
+                            editUsername: true,
+                          }))
+                        }
+                      >
+                        <Icon as={BiPencil} />
+                      </Button>
+                    )}
+                  </Flex>
+                </Flex>
+              )}
+          </Flex>
+          <Button mt="4" isFullWidth>
+            Cập nhật
+          </Button>
+        </Box>
+      </Flex>
     </>
   );
 }
