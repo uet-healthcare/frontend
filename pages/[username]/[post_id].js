@@ -6,6 +6,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useEffect } from "react";
 import { Box, Button, Flex, Image } from "@chakra-ui/react";
+import { BackButton } from "components/back-button";
 
 export default function PostDetail({ post }) {
   const router = useRouter();
@@ -38,9 +39,7 @@ export default function PostDetail({ post }) {
           color="gray.400"
           className="flex items-center gap-16 text-gray-400"
         >
-          <Button variant="ghost" fontSize="xl" onClick={() => router.back()}>
-            &larr;
-          </Button>
+          <BackButton />
           <Link href="/">
             <a>
               <Box as="span" fontWeight="bold" _hover={{ color: "gray.600" }}>

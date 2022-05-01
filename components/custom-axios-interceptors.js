@@ -7,6 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  Box,
   Button,
 } from "@chakra-ui/react";
 import { mainAPI } from "utils/axios";
@@ -27,7 +28,17 @@ export function CustomAxiosInterceptors() {
         return response;
       },
       function (error) {
-        if (error.response.status === 401) {
+        if (error.toJSON().message === "Network Error") {
+          setAlertMessage({
+            title: "Mất kết nối",
+            message:
+              "Không thể kết nối tới server. Vui lòng kiểm tra lại đường truyền internet của bạn.",
+            action: {
+              name: "OK",
+              onAction: onClose,
+            },
+          });
+        } else if (error.response?.status === 401) {
           const message = "Vui lòng đăng nhập để sử dụng chức năng này";
           const action = {
             name: "Đăng nhập lại",
@@ -46,8 +57,8 @@ export function CustomAxiosInterceptors() {
             setAlertMessage({ title: "Bạn chưa đăng nhập", message, action });
           }
         } else if (
-          error.response.status >= 500 &&
-          error.response.status < 600
+          error.response?.status >= 500 &&
+          error.response?.status < 600
         ) {
           setAlertMessage({
             title: "Lỗi hệ thống",
@@ -73,26 +84,28 @@ export function CustomAxiosInterceptors() {
         onClose={onClose}
       >
         <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              {alertMessage?.title}
-            </AlertDialogHeader>
+          <Box mx="4">
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                {alertMessage?.title}
+              </AlertDialogHeader>
 
-            <AlertDialogBody>{alertMessage?.message}</AlertDialogBody>
+              <AlertDialogBody>{alertMessage?.message}</AlertDialogBody>
 
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
-                Bỏ qua
-              </Button>
-              <Button
-                colorScheme="green"
-                onClick={alertMessage?.action.onAction}
-                ml={3}
-              >
-                {alertMessage?.action.name}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={onClose}>
+                  Bỏ qua
+                </Button>
+                <Button
+                  colorScheme="green"
+                  onClick={alertMessage?.action.onAction}
+                  ml={3}
+                >
+                  {alertMessage?.action.name}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </Box>
         </AlertDialogOverlay>
       </AlertDialog>
     </>

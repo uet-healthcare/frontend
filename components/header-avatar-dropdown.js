@@ -7,6 +7,7 @@ import {
   Image,
   Menu,
   MenuButton,
+  MenuGroup,
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
@@ -17,11 +18,11 @@ export default function AvatarDropdown({}) {
   const [userMetaData, setUserMetaData] = useState(DEFAULT_USER_METADATA);
 
   useEffect(() => {
-    setUserMetaData(auth.currentUser().user_metadata);
+    if (auth.currentUser()) setUserMetaData(auth.currentUser().user_metadata);
   }, []);
 
   return (
-    <Menu>
+    <Menu placement="bottom-end">
       <MenuButton>
         <Flex
           alignItems="center"
@@ -35,7 +36,7 @@ export default function AvatarDropdown({}) {
         >
           {userMetaData.avatar_url ? (
             <Image
-              src={userMetaData.avatar_url}
+              src={userMetaData?.avatar_url}
               flexShrink="0"
               borderRadius="lg"
               referrerPolicy="no-referrer"
@@ -46,45 +47,49 @@ export default function AvatarDropdown({}) {
         </Flex>
       </MenuButton>
       <MenuList>
-        <Link href={`/${userMetaData.username}`}>
-          <a>
-            <MenuItem
-              icon={
-                <Flex alignItems="center">
-                  <Icon as={BiUser} w="3.5" h="3.5" />
-                </Flex>
-              }
-            >
-              Trang cá nhân
-            </MenuItem>
-          </a>
-        </Link>
-        <Link href="/cap-nhat-thong-tin">
-          <a>
-            <MenuItem
-              icon={
-                <Flex alignItems="center">
-                  <Icon as={BiCog} w="3.5" h="3.5" />
-                </Flex>
-              }
-            >
-              Cập nhật thông tin
-            </MenuItem>
-          </a>
-        </Link>
-        <Link href="/doi-mat-khau">
-          <a>
-            <MenuItem
-              icon={
-                <Flex alignItems="center">
-                  <Icon as={BiLock} w="3.5" h="3.5" />
-                </Flex>
-              }
-            >
-              Đổi mật khẩu
-            </MenuItem>
-          </a>
-        </Link>
+        <MenuGroup title="Cá nhân">
+          <Link href={`/${userMetaData?.username}`}>
+            <a>
+              <MenuItem
+                icon={
+                  <Flex alignItems="center">
+                    <Icon as={BiUser} w="3.5" h="3.5" />
+                  </Flex>
+                }
+              >
+                Trang cá nhân
+              </MenuItem>
+            </a>
+          </Link>
+        </MenuGroup>
+        <MenuGroup title="Cài đặt">
+          <Link href="/cap-nhat-thong-tin">
+            <a>
+              <MenuItem
+                icon={
+                  <Flex alignItems="center">
+                    <Icon as={BiCog} w="3.5" h="3.5" />
+                  </Flex>
+                }
+              >
+                Cập nhật thông tin
+              </MenuItem>
+            </a>
+          </Link>
+          <Link href="/doi-mat-khau">
+            <a>
+              <MenuItem
+                icon={
+                  <Flex alignItems="center">
+                    <Icon as={BiLock} w="3.5" h="3.5" />
+                  </Flex>
+                }
+              >
+                Đổi mật khẩu
+              </MenuItem>
+            </a>
+          </Link>
+        </MenuGroup>
         <MenuItem
           icon={
             <Flex alignItems="center">

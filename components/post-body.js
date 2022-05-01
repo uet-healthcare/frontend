@@ -59,14 +59,14 @@ const components = {
     <Box
       as="pre"
       borderRadius="base"
-      sx={{ "& > code": { w: "full", p: "4" } }}
+      sx={{ "& > code": { w: "full", p: "4", overflowX: "auto" } }}
       {...props}
     >
       {children}
     </Box>
   ),
   code: ({ node, children, className, ...props }) => (
-    <Code borderRadius="base" fontSize="sm" {...props}>
+    <Code borderRadius="base" fontSize="sm" wordBreak="break-word" {...props}>
       {children}
     </Code>
   ),

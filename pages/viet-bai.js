@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Editor from "components/editor";
 import { useRef } from "react";
 import { Box, Button, Flex, Input } from "@chakra-ui/react";
+import { BackButton } from "components/back-button";
 
 export default function WritePost() {
   const router = useRouter();
@@ -61,11 +62,11 @@ export default function WritePost() {
           router.push(`/bai-viet/${route}-${response.data.post_id}`);
         } else {
           alert("something went wrong.");
-          console.error(response);
+          console.error("c", response);
         }
       })
       .catch((error) => {
-        console.error(error.code);
+        console.error("b", error.code);
       });
   };
 
@@ -88,17 +89,7 @@ export default function WritePost() {
               color="gray.400"
               _hover={{ color: "gray.600" }}
             >
-              <Button
-                variant="ghost"
-                fontSize="xl"
-                onClick={() => {
-                  console.log(window.history.length);
-                  if (window.history.length > 2) router.back();
-                  else router.push("/");
-                }}
-              >
-                &larr;
-              </Button>
+              <BackButton />
             </Flex>
             <Flex alignItems="center" justifyContent="space-between" mb="6">
               <Box

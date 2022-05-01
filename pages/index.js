@@ -1,11 +1,4 @@
-import {
-  Box,
-  Divider,
-  Flex,
-  Image,
-  StackDivider,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
 import AvatarDropdown from "components/header-avatar-dropdown";
 import Link from "next/link";
 
@@ -18,47 +11,41 @@ const POSTS_PER_PAGE = 10;
 
 export default function Home({ posts: initialPosts }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
   const [posts, setPosts] = useState(initialPosts);
-  const [isLoadMore, setIsLoadMore] = useState(false);
-  const [isNoMorePosts, setIsNoMorePosts] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setCurrentUser(auth.currentUser());
-  }, []);
+    setIsLoggedIn(Boolean(auth.currentUser()));
 
-  useEffect(() => {
     const handleScroll = () => {
       if (
         window.innerHeight + window.pageYOffset >=
         document.body.offsetHeight
       ) {
-        setIsLoadMore(true);
+        setIsLoading(true);
       }
     };
     window.addEventListener("scroll", handleScroll, false);
 
-    return () => window.removeEventListener("scroll", handleScroll, false);
-  }, [setIsLoadMore]);
+    return () => {
+      window.removeEventListener("scroll", handleScroll, false);
+    };
+  }, []);
 
   useEffect(() => {
-    if (isLoading || !isLoadMore || isNoMorePosts) return;
-    setIsLoading(true);
+    if (!isLoading) return;
     mainAPI
       .get(`/public/posts?offset=${posts.length}&limit=${POSTS_PER_PAGE}`)
       .then((response) => {
-        if (response.status === 200 && response.data && response.data.length) {
+        if (response.status === 200 && response.data) {
           const responsePosts = response.data.map((post) => ({
             ...post,
             created_time: Intl.DateTimeFormat("vi-VN", {
               dateStyle: "long",
             }).format(new Date(post.created_time)),
           }));
-
-          setPosts((prevState) => [...prevState, ...responsePosts]);
-          setIsLoadMore(false);
-          if (responsePosts.length < POSTS_PER_PAGE) {
-            setIsNoMorePosts(true);
+          if (response.data.length) {
+            setPosts((prevState) => [...prevState, ...responsePosts]);
           }
         }
       })
@@ -66,7 +53,7 @@ export default function Home({ posts: initialPosts }) {
       .then(() => {
         setIsLoading(false);
       });
-  }, [isLoadMore, posts.length, setPosts, isLoading]);
+  }, [posts, isLoading]);
 
   return (
     <>
@@ -91,14 +78,14 @@ export default function Home({ posts: initialPosts }) {
           </a>
         </Link>
         <Flex alignItems="center" gap="3" fontSize="sm" color="gray.600">
-          <Link href={currentUser ? "/viet-bai" : "/dang-nhap"}>
+          <Link href={isLoggedIn ? "/viet-bai" : "/dang-nhap"}>
             <a>
               <Box _hover={{ color: "gray.900" }}>
-                {currentUser ? "Viết bài" : "Đăng nhập"}
+                {isLoggedIn ? "Viết bài" : "Đăng nhập"}
               </Box>
             </a>
           </Link>
-          {currentUser && <AvatarDropdown />}
+          {isLoggedIn && <AvatarDropdown />}
         </Flex>
       </Flex>
       <hr />
