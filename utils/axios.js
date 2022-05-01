@@ -15,24 +15,3 @@ mainAPI.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-// Add a response interceptor
-mainAPI.interceptors.response.use(
-  function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-    return response;
-  },
-  function (error) {
-    if (error.response.status === 401) {
-      if (window.localStorage.getItem("gotrue.user")) {
-        alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-        window.localStorage.clear();
-        window.location.href = "/dang-nhap";
-      }
-    }
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    return Promise.reject(error);
-  }
-);

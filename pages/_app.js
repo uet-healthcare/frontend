@@ -6,6 +6,7 @@ import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import "../styles/globals.css";
 import { chakraExtendedTheme } from "styles/theme/theme";
+import { CustomAxiosInterceptors } from "components/custom-axios-interceptors";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -51,13 +52,10 @@ function MyApp({ Component, pageProps }) {
     }
   }, [router]);
 
-  useEffect(() => {
-    const path = router.asPath;
-    if (!path) return;
-  }, [router]);
   return (
     <ChakraProvider theme={chakraExtendedTheme}>
       <ErrorBoundary>
+        <CustomAxiosInterceptors />
         <Component {...pageProps} />
       </ErrorBoundary>
     </ChakraProvider>
