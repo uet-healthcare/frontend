@@ -12,6 +12,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@hookform/resolvers": "^2.8.8",
     "@supabase/storage-js": "^1.7.0",
     "axios": "^0.26.1",
     "classnames": "^2.3.1",
@@ -27,7 +28,8 @@
     "rehype-highlight": "^5.0.2",
     "remark-gfm": "^3.0.1",
     "rich-markdown-editor": "^11.21.3",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "eslint": "8.12.0",

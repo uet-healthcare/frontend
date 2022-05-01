@@ -1,25 +1,47 @@
-import { Box, Button, Flex, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  Input,
+  useToast,
+} from "@chakra-ui/react";
 import { GoogleLoginButton } from "components/google-login-button";
 import Link from "next/link";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { auth } from "utils/auth";
+import { signInSchema } from "utils/schemas";
 
 export default function SignIn() {
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleLogin = (event) => {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ resolver: yupResolver(signInSchema) });
 
+  const onSubmit = (user) => {
+    setIsLoading(true);
     auth
-      .login(username, password, true)
-      .then((response) => {
-        window.location.href = "/";
+      .login(user.email, user.password, true)
+      .then(() => {
+        window.open("/", "_self");
       })
       .catch((error) => {
-        alert(error);
-      });
+        toast({
+          title: "Đăng nhập thất bại",
+          description: "Tên đăng nhập hoặc mật khẩu không đúng",
+          status: "error",
+          isClosable: true,
+        });
+        console.error(error);
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -28,7 +50,7 @@ export default function SignIn() {
         alignItems="baseline"
         justifyContent="space-between"
         mx="auto"
-        px={{ base: "16px", md: 0 }}
+        px={{ base: "16px", sm: 0 }}
         w="full"
         maxW="container.sm"
       >
@@ -59,13 +81,13 @@ export default function SignIn() {
       <hr />
       <Flex
         maxW="container.sm"
-        mx={{ base: "4", md: "auto" }}
+        mx={{ base: "4", sm: "auto" }}
         flexDirection="column"
         columnGap="4"
-        rowGap={{ base: "4", md: "8" }}
+        rowGap={{ base: "4", sm: "8" }}
         lineHeight="tall"
         color="gray.900"
-        fontSize={{ md: "lg" }}
+        fontSize={{ sm: "lg" }}
       >
         <Flex
           flexDirection="column"
@@ -83,20 +105,28 @@ export default function SignIn() {
             flexDirection="column"
             gap="3"
             w="full"
-            onSubmit={handleLogin}
+            validationSche
+            onSubmit={handleSubmit(onSubmit)}
           >
-            <Input
-              placeholder="Email của bạn"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Input
-              placeholder="************"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button>Đăng nhập</Button>
+            <FormControl isInvalid={errors.email}>
+              <Input placeholder="Email của bạn" {...register("email")} />
+              {errors.email && (
+                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            <FormControl isInvalid={errors.password}>
+              <Input
+                placeholder="************"
+                type="password"
+                {...register("password")}
+              />
+              {errors.password && (
+                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            <Button type="submit" isLoading={isLoading}>
+              Đăng nhập
+            </Button>
           </Flex>
           <Box fontSize="sm" color="gray.500">
             Bạn chưa có tài khoản?{" "}

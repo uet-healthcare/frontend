@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import { Fragment } from "react";
 import { mainAPI } from "utils/axios";
@@ -11,14 +11,14 @@ export default function UserProfile({ userMetadata, posts }) {
         alignItems="baseline"
         justifyContent="space-between"
         mx="auto"
-        px={{ base: "16px", md: 0 }}
+        px={{ base: "16px", sm: 0 }}
         w="full"
         maxW="container.sm"
       >
         <Flex
           flexWrap="wrap"
           alignItems="center"
-          gap={{ base: "2.5", md: "4" }}
+          gap={{ base: "2.5", sm: "4" }}
           py="4"
         >
           <Link href={`/${userMetadata.username}`}>
@@ -48,7 +48,7 @@ export default function UserProfile({ userMetadata, posts }) {
                   )}
                 </Flex>
                 <Box
-                  fontSize={{ base: "lg", md: "xl" }}
+                  fontSize={{ base: "lg", sm: "xl" }}
                   fontWeight="bold"
                   color="gray.700"
                 >
@@ -71,19 +71,19 @@ export default function UserProfile({ userMetadata, posts }) {
       <hr />
       <Flex
         maxW="container.sm"
-        mx={{ base: "4", md: "auto" }}
+        mx={{ base: "4", sm: "auto" }}
         flexDirection="column"
         columnGap="4"
-        rowGap={{ base: "4", md: "8" }}
+        rowGap={{ base: "4", sm: "8" }}
         lineHeight="tall"
         color="gray.900"
-        fontSize={{ md: "lg" }}
+        fontSize={{ sm: "lg" }}
       >
-        <VStack divider={<Divider />} mt={{ md: "3" }}>
+        <VStack divider={<Divider />} mt={{ sm: "3" }}>
           {posts &&
             posts.map((post) => (
               <Fragment key={post.post_id}>
-                <VStack alignItems="left" gap="1" py="5">
+                <VStack alignItems="left" gap="1" py="5" w="full">
                   <Box
                     as="span"
                     fontSize="xl"

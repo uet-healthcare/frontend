@@ -1,5 +1,6 @@
 import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
-import AvatarDropdown from "components/header-avatar-dropdown";
+import AvatarDropdown from "components/global/header-avatar-dropdown";
+import { useUserState } from "hooks/use-user-state";
 import Link from "next/link";
 
 import { Fragment, useEffect, useState } from "react";
@@ -12,11 +13,9 @@ const POSTS_PER_PAGE = 10;
 export default function Home({ posts: initialPosts }) {
   const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState(initialPosts);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const userState = useUserState();
 
   useEffect(() => {
-    setIsLoggedIn(Boolean(auth.currentUser()));
-
     const handleScroll = () => {
       if (
         window.innerHeight + window.pageYOffset >=
@@ -61,7 +60,7 @@ export default function Home({ posts: initialPosts }) {
         alignItems="baseline"
         justifyContent="space-between"
         mx="auto"
-        px={{ base: "16px", md: 0 }}
+        px={{ base: "16px", sm: 0 }}
         w="full"
         maxW="container.sm"
       >
@@ -78,32 +77,32 @@ export default function Home({ posts: initialPosts }) {
           </a>
         </Link>
         <Flex alignItems="center" gap="3" fontSize="sm" color="gray.600">
-          <Link href={isLoggedIn ? "/viet-bai" : "/dang-nhap"}>
+          <Link href={userState.isLoggedIn ? "/viet-bai" : "/dang-nhap"}>
             <a>
               <Box _hover={{ color: "gray.900" }}>
-                {isLoggedIn ? "Viết bài" : "Đăng nhập"}
+                {userState.isLoggedIn ? "Viết bài" : "Đăng nhập"}
               </Box>
             </a>
           </Link>
-          {isLoggedIn && <AvatarDropdown />}
+          {userState.isLoggedIn && <AvatarDropdown />}
         </Flex>
       </Flex>
       <hr />
       <Flex
         maxW="container.sm"
-        mx={{ base: "4", md: "auto" }}
+        mx={{ base: "4", sm: "auto" }}
         flexDirection="column"
         columnGap="4"
-        rowGap={{ base: "4", md: "8" }}
+        rowGap={{ base: "4", sm: "8" }}
         lineHeight="tall"
         color="gray.900"
-        fontSize={{ md: "lg" }}
+        fontSize={{ sm: "lg" }}
       >
-        <VStack divider={<Divider />} mt={{ md: "3" }}>
+        <VStack divider={<Divider />} mt={{ sm: "3" }}>
           {posts &&
             posts.map((post) => (
               <Fragment key={post.post_id}>
-                <VStack alignItems="left" gap="1" py="5">
+                <VStack alignItems="left" gap="1" py="5" w="full">
                   <Box
                     as="span"
                     fontSize="xl"

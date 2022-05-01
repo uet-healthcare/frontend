@@ -1,145 +1,204 @@
-import { Box, Button, Flex, Icon, Input, VStack } from "@chakra-ui/react";
-import AvatarDropdown from "components/header-avatar-dropdown";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  Icon,
+  Input,
+  useToast,
+} from "@chakra-ui/react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import AvatarDropdown from "components/global/header-avatar-dropdown";
+import { useUserState } from "hooks/use-user-state";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { BiPencil } from "react-icons/bi";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import { removeVietnameseTones } from "utils/string";
+import * as yup from "yup";
 
 const USERNAME_EXISTED_MESSAGE = "Rất tiếc, username này đã tồn tại!";
 
 export default function UpdateInfo() {
-  const [fullname, setFullname] = useState("");
-  const [username, setUsername] = useState("");
+  const toast = useToast();
+  const userState = useUserState();
+
+  const schemas = yup.object().shape({
+    username: yup
+      .string()
+      .required("Bạn chưa nhập username")
+      .matches(/^[a-zA-Z0-9._-]+$/g, {
+        excludeEmptyString: true,
+        message: "Username không hợp lệ",
+      })
+      .test("username", USERNAME_EXISTED_MESSAGE, async (username) => {
+        if (!username) return true;
+        if (
+          userState.isLoggedIn &&
+          username === userState.data.user_metadata.username
+        ) {
+          return true;
+        }
+        return (
+          await mainAPI.post(`/private/settings/username_check`, {
+            username: username,
+          })
+        ).data.is_available;
+      }),
+    fullname: yup
+      .string()
+      .required("Bạn chưa nhập tên")
+      .test("fullname", "Tên không hợp lệ", (fullname) =>
+        fullname
+          ? /^[a-z0-9 ]+$/g.test(
+              removeVietnameseTones(fullname.toLowerCase())
+            ) && !/  /g.test(fullname)
+          : true
+      ),
+  });
+
   const [isProcessing, setIsProcessing] = useState({
     checkUsername: false,
     editUsername: false,
   });
-  const [error, setError] = useState({
-    fullname: null,
-    username: null,
-  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    clearErrors,
+    trigger,
+    watch,
+    formState: { errors },
+  } = useForm({ resolver: yupResolver(schemas) });
+
+  const startCheckUsername = () =>
+    setIsProcessing((prevState) => ({
+      ...prevState,
+      checkUsername: true,
+    }));
+
+  const stopCheckUsername = () =>
+    setIsProcessing((prevState) => ({
+      ...prevState,
+      checkUsername: false,
+    }));
 
   useEffect(() => {
     const { user_metadata } = auth.currentUser();
-    setFullname(user_metadata.full_name);
+    setValue("fullname", user_metadata.full_name);
     if (user_metadata.username) {
-      setUsername(user_metadata.username);
+      setValue("username", user_metadata.username);
     }
-  }, []);
+  }, [setValue]);
 
   useEffect(() => {
-    if (!fullname) {
-      const { user_metadata } = auth.currentUser();
-      if (!user_metadata.username) setUsername("");
-      return;
-    }
-    if (
-      !/^[a-z0-9 ]+$/g.test(removeVietnameseTones(fullname.toLowerCase())) ||
-      /  /g.test(fullname)
-    ) {
-      setError((prevState) => ({
-        ...prevState,
-        fullname: "Tên không hợp lệ.",
-      }));
-    } else {
-      setError((prevState) => ({ ...prevState, fullname: null }));
-    }
     const { user_metadata } = auth.currentUser();
-    if (user_metadata.username) return;
+    let timeoutID;
 
-    const usernameBase = removeVietnameseTones(fullname)
-      .split("")
-      .filter((c) => /[a-z0-9]/g.test(c.toLowerCase()))
-      .join("")
-      .toLowerCase();
-    const suggestUsername = async (username, attempt) => {
-      const tryUsername = attempt === 0 ? username : `${username}${attempt}`;
+    const suggestUsername = async (base, attempt) => {
+      if (!base) return "";
+      const tryUsername = attempt === 0 ? base : `${base}${attempt}`;
       try {
         const { data } = await mainAPI.post(
           `/private/settings/username_check`,
-          { username }
+          { username: tryUsername }
         );
-        if (data.is_available) return setUsername(tryUsername);
-        return await suggestUsername(username, attempt + 1);
+        if (data.is_available) {
+          setValue("username", tryUsername);
+          return tryUsername;
+        } else {
+          return await suggestUsername(base, attempt + 1);
+        }
       } catch (error) {
-        setUsername(`${usernameBase}${Date.now()}`);
+        return `${base}${Date.now()}`;
       }
     };
 
-    suggestUsername(usernameBase, 0);
-  }, [fullname]);
+    const subscription = watch(async (values, { name, type }) => {
+      if (name === "fullname") {
+        clearTimeout(timeoutID);
+        if (!values.fullname) {
+          if (!user_metadata.username) setValue("username", "");
+          return;
+        }
+        if (user_metadata.username) return;
+        const usernameBase = removeVietnameseTones(values.fullname)
+          .split("")
+          .filter((c) => /[a-z0-9]/g.test(c.toLowerCase()))
+          .join("")
+          .toLowerCase();
 
-  useEffect(() => {
-    if (!isProcessing.editUsername || !username) return;
-    const { user_metadata } = auth.currentUser();
-    if (username === user_metadata.username) {
-      setError((prevState) => ({ ...prevState, username: null }));
-      return;
-    }
-    if (!/^[a-zA-Z0-9._-]+$/g.test(username)) {
-      setError((prevState) => ({
-        ...prevState,
-        username: "Username không hợp lệ",
-      }));
-      return;
-    }
+        startCheckUsername();
+        timeoutID = setTimeout(async () => {
+          const newUsername = await suggestUsername(usernameBase, 0);
+          setValue("username", newUsername);
+          stopCheckUsername();
+        }, 500);
+      } else if (name === "username") {
+        clearTimeout(timeoutID);
 
-    setIsProcessing((prevState) => ({ ...prevState, checkUsername: true }));
-    const timeoutID = setTimeout(() => {
-      mainAPI
-        .post(`/private/settings/username_check`, { username })
-        .then((response) => {
-          if (
-            response.status === 200 &&
-            response.data &&
-            !response.data.is_available
-          ) {
-            setError((prevState) => ({
-              ...prevState,
-              username: USERNAME_EXISTED_MESSAGE,
-            }));
-          }
-        })
-        .finally(() => {
-          setIsProcessing((prevState) => ({
-            ...prevState,
-            checkUsername: false,
-          }));
-        });
-    }, 1000);
-    return () => clearTimeout(timeoutID);
-  }, [isProcessing.editUsername, username]);
+        if (!values.username || values.username === user_metadata.username) {
+          clearErrors("username");
+          stopCheckUsername();
 
-  const handleUpdate = (event) => {
-    event.preventDefault();
-    if (Object.values(error).find((errMsg) => errMsg)) {
-      return;
-    }
+          return;
+        }
 
+        startCheckUsername();
+        timeoutID = setTimeout(async () => {
+          await trigger("username");
+          stopCheckUsername();
+        }, 500);
+      }
+    });
+
+    return () => {
+      clearTimeout(timeoutID);
+      subscription.unsubscribe();
+    };
+  }, [watch, setValue, clearErrors, isProcessing.editUsername, trigger]);
+
+  const handleUpdate = (data) => {
     auth
       .currentUser()
       .update({
         data: {
-          full_name: fullname,
-          username: username,
+          full_name: data.fullname,
+          username: data.username,
         },
       })
-      .then((response) => {
-        window.location.href = "/";
+      .then(() => {
+        toast({
+          title: "Cập nhật thành công!",
+          status: "success",
+          isClosable: true,
+        });
       })
-      .catch((error) => {
-        alert("Thông tin không hợp lệ hoặc username đã tồn tại.");
+      .catch(() => {
+        toast({
+          title: "Cập nhật thất bại",
+          description: "Thông tin không hợp lệ hoặc username đã tồn tại.",
+          status: "success",
+          isClosable: true,
+        });
+        console.error(error);
       });
   };
+
+  const username = watch("username");
 
   return (
     <>
       <Flex
         alignItems="center"
         justifyContent="space-between"
-        px={{ base: "16px", md: 0 }}
+        px={{ base: "16px", sm: 0 }}
         w="full"
         maxW="container.sm"
         mx="auto"
@@ -161,95 +220,80 @@ export default function UpdateInfo() {
       <hr />
       <Flex
         maxW="container.sm"
-        mx={{ base: "4", md: "auto" }}
+        mx={{ base: "4", sm: "auto" }}
         mt="12"
         flexDirection="column"
         gap="4"
-        rowGap={{ base: "4", md: "8" }}
+        rowGap={{ base: "4", sm: "8" }}
         lineHeight="tall"
         color="gray.900"
-        fontSize={{ md: "lg" }}
+        fontSize={{ sm: "lg" }}
       >
-        <Box as="form" mx={{ sm: "32" }} onSubmit={handleUpdate}>
+        <Box as="form" mx={{ sm: "32" }} onSubmit={handleSubmit(handleUpdate)}>
           <Flex flexDirection="column" w="full" gap="4">
             <Box>
-              <Box mb="1" fontSize="sm" fontWeight="semibold" color="gray.500">
-                Tên của bạn
-              </Box>
-              <Input
-                placeholder="Bạn tên là gì nè?"
-                value={fullname}
-                onChange={(e) => setFullname(e.target.value)}
-              />
-              {error.fullname && (
-                <Box mt="1" fontSize="sm" color="red.600">
-                  {error.fullname}
-                </Box>
-              )}
+              <FormControl isInvalid={errors.fullname}>
+                <FormLabel htmlFor="fullname">Tên của bạn</FormLabel>
+                <Input
+                  placeholder="Bạn tên là gì nè?"
+                  {...register("fullname")}
+                />
+                {errors.fullname && (
+                  <FormErrorMessage>
+                    {errors.fullname?.message}
+                  </FormErrorMessage>
+                )}
+              </FormControl>
             </Box>
             {isProcessing.editUsername && (
               <Box w="full">
-                <Box
-                  mb="1"
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.500"
-                >
-                  Username
-                </Box>
-                <Input
-                  placeholder="Username của bạn"
-                  value={username}
-                  pattern="[a-zA-Z0-9.-_]+"
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                {!isProcessing.checkUsername ? (
-                  error.username && (
-                    <Box mt="1" fontSize="sm" color="red.600">
-                      {error.username}
-                    </Box>
-                  )
-                ) : (
-                  <Box mt="1" fontSize="sm" color="gray.500">
-                    Đang kiểm tra...
-                  </Box>
-                )}
+                <FormControl isInvalid={errors.username}>
+                  <FormLabel htmlFor="username">Username</FormLabel>
+                  <Input
+                    placeholder="Username của bạn"
+                    {...register("username")}
+                  />
+                  {errors.username && (
+                    <FormErrorMessage>
+                      {errors.username?.message}
+                    </FormErrorMessage>
+                  )}
+                </FormControl>
               </Box>
             )}
-            {username &&
-              !isProcessing.checkUsername &&
-              (!isProcessing.editUsername || !error.username) && (
-                <Flex gap="1" fontSize="sm" color="gray.500">
-                  <Box w="full">
-                    <Box>Trang cá nhân của bạn sẽ là:</Box>
-                    <Box
-                      as="strong"
-                      fontWeight="semibold"
-                      wordBreak="break-all"
-                    >
-                      https://vietlach.vn/{username || "username"}
-                    </Box>
+            {isProcessing.checkUsername && (
+              <Box mt="1" fontSize="sm" color="gray.500">
+                Đang kiểm tra...
+              </Box>
+            )}
+            {!isProcessing.checkUsername && !errors.username && (
+              <Flex gap="1" fontSize="sm" color="gray.500">
+                <Box w="full">
+                  <Box>Trang cá nhân của bạn sẽ là:</Box>
+                  <Box as="strong" fontWeight="semibold" wordBreak="break-all">
+                    https://vietlach.vn/{username || "username"}
                   </Box>
-                  <Flex alignItems="center" gap="3">
-                    {!isProcessing.editUsername && (
-                      <Button
-                        variant="ghost"
-                        type="button"
-                        onClick={() =>
-                          setIsProcessing((prevState) => ({
-                            ...prevState,
-                            editUsername: true,
-                          }))
-                        }
-                      >
-                        <Icon as={BiPencil} />
-                      </Button>
-                    )}
-                  </Flex>
+                </Box>
+                <Flex alignItems="center" gap="3">
+                  {!isProcessing.editUsername && (
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() =>
+                        setIsProcessing((prevState) => ({
+                          ...prevState,
+                          editUsername: true,
+                        }))
+                      }
+                    >
+                      <Icon as={BiPencil} />
+                    </Button>
+                  )}
                 </Flex>
-              )}
+              </Flex>
+            )}
           </Flex>
-          <Button mt="4" isFullWidth>
+          <Button type="submit" mt="4" isFullWidth>
             Cập nhật
           </Button>
         </Box>

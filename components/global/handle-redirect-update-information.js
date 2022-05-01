@@ -19,7 +19,7 @@ export function HandleRedirectUpdateInformation() {
           return { ...accum, [key]: value };
         }, {});
       auth.createUser(infos, true).then(() => {
-        window.location.href = "/";
+        window.open("/", "_self");
       });
     } else {
       const currentUser = auth.currentUser();

@@ -3,18 +3,50 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Editor from "components/editor";
 import { useRef } from "react";
-import { Box, Button, Flex, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  Input,
+  SkeletonText,
+  useToast,
+} from "@chakra-ui/react";
 import { BackButton } from "components/back-button";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+const schemas = yup.object().shape({
+  title: yup.string().required("Bạn chưa viết tiêu đề"),
+  content: yup.string().required("Bạn chưa viết nội dung"),
+});
+
+const reduceContent = (content) => {
+  let finalContent = content.trim();
+  finalContent = finalContent.endsWith("\\")
+    ? finalContent.substring(0, finalContent.length - 1)
+    : finalContent;
+  return finalContent;
+};
 
 export default function WritePost() {
   const router = useRouter();
+  const toast = useToast();
   const [isImport, setIsImport] = useState(false);
-  const [title, setTitle] = useState("");
   const [defaultContent, setDefaultContent] = useState("");
-  const [content, setContent] = useState("");
   const [importURL, setImportURL] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const uploadInputRef = useRef();
+  const {
+    register,
+    getValues,
+    setValue,
+    trigger,
+    handleSubmit,
+    formState: { errors, isSubmitted },
+  } = useForm({ resolver: yupResolver(schemas) });
 
   // debounce import from URL
   useEffect(() => {
@@ -25,26 +57,30 @@ export default function WritePost() {
         const response = await fetch(importURL);
         const text = await response.text();
         setDefaultContent(text);
-        setContent(text);
+        setValue("content", text);
       } catch (error) {
         console.error(error);
-        alert("Cannot import from " + importURL);
+        toast({
+          title: "Import thất bại",
+          description: "Không lấy được bài viết từ link đã cung cấp",
+          status: "error",
+          isClosable: true,
+        });
       } finally {
         setIsImporting(false);
+        setIsImport(false);
+        trigger("content");
       }
     }, 1000);
 
     return () => clearTimeout(timeoutID);
-  }, [importURL]);
+  }, [toast, importURL, setValue, trigger]);
 
-  const handlePost = () => {
-    let finalContent = content.trim();
-    finalContent = finalContent.endsWith("\\")
-      ? finalContent.substring(0, finalContent.length - 1)
-      : finalContent;
+  const handlePost = (data) => {
+    const { title, content } = data;
 
     mainAPI
-      .post("/private/posts", { title, content: finalContent })
+      .post("/private/posts", { title, content })
       .then((response) => {
         const route = title
           .split("")
@@ -61,12 +97,17 @@ export default function WritePost() {
         if (response.status === 200 && response.data.post_id) {
           router.push(`/bai-viet/${route}-${response.data.post_id}`);
         } else {
-          alert("something went wrong.");
-          console.error("c", response);
+          toast({
+            title: "Đã có lỗi xảy ra",
+            description: "Vui lòng thử lại sau hoặc liên hệ quản trị viên",
+            status: "error",
+            isClosable: true,
+          });
+          console.error("handlePost", response);
         }
       })
       .catch((error) => {
-        console.error("b", error.code);
+        console.error("handlePost catch", error.code);
       });
   };
 
@@ -82,7 +123,14 @@ export default function WritePost() {
           maxW="container.sm"
           overflow="auto"
         >
-          <Flex flexDirection="column" gap="3" py="8" w="full">
+          <Flex
+            as="form"
+            onSubmit={handleSubmit(handlePost)}
+            flexDirection="column"
+            gap="3"
+            py="8"
+            w="full"
+          >
             <Flex
               alignItems="center"
               gap="3"
@@ -101,16 +149,17 @@ export default function WritePost() {
               >
                 Tạo bài viết mới
               </Box>
-              <Button disabled={!title || !content} onClick={handlePost}>
+              <Button type="submit" onClick={handlePost}>
                 Đăng bài
               </Button>
             </Flex>
-            <Input
-              placeholder="Tiêu đề bài viết"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            {(!content || content === "\\\n") && (
+            <FormControl isInvalid={errors.title}>
+              <Input placeholder="Tiêu đề bài viết" {...register("title")} />
+              {errors.title && (
+                <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            {!getValues("content") && (
               <div>
                 <Box
                   as="input"
@@ -127,14 +176,14 @@ export default function WritePost() {
                       return;
                     }
 
-                    setTitle(file.name.replace(/\.[^/.]+$/, ""));
+                    setValue("title", file.name.replace(/\.[^/.]+$/, ""));
 
                     const reader = new FileReader();
                     reader.addEventListener(
                       "load",
                       () => {
                         setDefaultContent(reader.result);
-                        setContent(reader.result);
+                        setValue("content", reader.result);
                       },
                       false
                     );
@@ -176,9 +225,8 @@ export default function WritePost() {
             )}
             <Flex
               flexDirection="col"
-              pb="8"
               mt="4"
-              gap={{ base: "4", md: "6" }}
+              gap={{ base: "4", sm: "6" }}
               lineHeight="tall"
               color="gray.900"
               fontSize="lg"
@@ -186,15 +234,26 @@ export default function WritePost() {
               sx={{ "& > div": { w: "full" } }}
             >
               {isImporting ? (
-                <div>loading...</div>
+                <Box>
+                  <SkeletonText mt="4" noOfLines={4} spacing="4" />
+                </Box>
               ) : (
                 <Editor
                   placeholder={"Viết điều gì đó..."}
                   defaultValue={defaultContent}
-                  onChange={(value) => setContent(value)}
+                  onChange={async (value) => {
+                    setValue("content", reduceContent(value));
+                    trigger("content");
+                  }}
                 />
               )}
             </Flex>
+            <FormControl isInvalid={isSubmitted && errors.content}>
+              <Input type="hidden" {...register("content")} />
+              {isSubmitted && errors.content && (
+                <FormErrorMessage>{errors.content?.message}</FormErrorMessage>
+              )}
+            </FormControl>
           </Flex>
         </Flex>
       </Box>
