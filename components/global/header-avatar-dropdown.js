@@ -51,15 +51,15 @@ export default function AvatarDropdown({}) {
             backgroundColor="red.50"
             color="red.800"
           >
-            {metadata.avatar_url ? (
+            {metadata?.avatar_url ? (
               <Image
-                src={metadata.avatar_url}
+                src={metadata?.avatar_url}
                 flexShrink="0"
                 borderRadius="lg"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              metadata.full_name?.[0] || "G"
+              metadata?.full_name?.[0] || "G"
             )}
           </Flex>
         </MenuButton>

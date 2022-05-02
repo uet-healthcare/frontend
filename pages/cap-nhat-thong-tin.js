@@ -4,7 +4,6 @@ import {
   Flex,
   FormControl,
   FormErrorMessage,
-  FormHelperText,
   FormLabel,
   Icon,
   Input,
@@ -12,15 +11,17 @@ import {
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
+import { debounce } from "utils/debounce";
 import { useUserState } from "hooks/use-user-state";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiPencil } from "react-icons/bi";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import { removeVietnameseTones } from "utils/string";
 import * as yup from "yup";
+import { suggestUsername } from "utils/utils";
 
 const USERNAME_EXISTED_MESSAGE = "Rất tiếc, username này đã tồn tại!";
 
@@ -28,31 +29,15 @@ export default function UpdateInfo() {
   const toast = useToast();
   const userState = useUserState();
 
+  const [isProcessing, setIsProcessing] = useState({
+    checkUsername: false,
+    editUsername: false,
+  });
+
   const schemas = yup.object().shape({
-    username: yup
-      .string()
-      .required("Bạn chưa nhập username")
-      .matches(/^[a-zA-Z0-9._-]+$/g, {
-        excludeEmptyString: true,
-        message: "Username không hợp lệ",
-      })
-      .test("username", USERNAME_EXISTED_MESSAGE, async (username) => {
-        if (!username) return true;
-        if (
-          userState.isLoggedIn &&
-          username === userState.data.user_metadata.username
-        ) {
-          return true;
-        }
-        return (
-          await mainAPI.post(`/private/settings/username_check`, {
-            username: username,
-          })
-        ).data.is_available;
-      }),
     fullname: yup
       .string()
-      .required("Bạn chưa nhập tên")
+      .required("Bạn chưa điền tên")
       .test("fullname", "Tên không hợp lệ", (fullname) =>
         fullname
           ? /^[a-z0-9 ]+$/g.test(
@@ -60,11 +45,43 @@ export default function UpdateInfo() {
             ) && !/  /g.test(fullname)
           : true
       ),
-  });
+    username: yup
+      .string()
+      .required("Bạn chưa điền username")
+      .matches(/^[a-zA-Z0-9._-]+$/g, {
+        excludeEmptyString: true,
+        message: "Username không hợp lệ",
+      })
+      .test(
+        "username",
+        USERNAME_EXISTED_MESSAGE,
+        (username) =>
+          new Promise((resolve) => {
+            if (
+              !username ||
+              userState.data.user_metadata.username === username
+            ) {
+              resolve(true);
+              return;
+            }
 
-  const [isProcessing, setIsProcessing] = useState({
-    checkUsername: false,
-    editUsername: false,
+            startCheckUsername();
+            debounce(
+              "update-profile-username",
+              async () => {
+                const response = await mainAPI.post(
+                  `/private/settings/username_check`,
+                  {
+                    username: username,
+                  }
+                );
+                resolve(response?.data?.is_available);
+                stopCheckUsername();
+              },
+              500
+            );
+          })
+      ),
   });
 
   const {
@@ -72,22 +89,31 @@ export default function UpdateInfo() {
     handleSubmit,
     setValue,
     clearErrors,
-    trigger,
     watch,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm({ resolver: yupResolver(schemas) });
+  const formValues = watch();
 
-  const startCheckUsername = () =>
-    setIsProcessing((prevState) => ({
-      ...prevState,
-      checkUsername: true,
-    }));
+  const startCheckUsername = useCallback(
+    function startCheckUsername() {
+      clearErrors("username");
+      setIsProcessing((prevState) => ({
+        ...prevState,
+        checkUsername: true,
+      }));
+    },
+    [clearErrors, setIsProcessing]
+  );
 
-  const stopCheckUsername = () =>
-    setIsProcessing((prevState) => ({
-      ...prevState,
-      checkUsername: false,
-    }));
+  const stopCheckUsername = useCallback(
+    function stopCheckUsername() {
+      setIsProcessing((prevState) => ({
+        ...prevState,
+        checkUsername: false,
+      }));
+    },
+    [setIsProcessing]
+  );
 
   useEffect(() => {
     const { user_metadata } = auth.currentUser();
@@ -98,71 +124,30 @@ export default function UpdateInfo() {
   }, [setValue]);
 
   useEffect(() => {
+    if (dirtyFields.username) return;
     const { user_metadata } = auth.currentUser();
     let timeoutID;
 
-    const suggestUsername = async (base, attempt) => {
-      if (!base) return "";
-      const tryUsername = attempt === 0 ? base : `${base}${attempt}`;
-      try {
-        const { data } = await mainAPI.post(
-          `/private/settings/username_check`,
-          { username: tryUsername }
-        );
-        if (data.is_available) {
-          setValue("username", tryUsername);
-          return tryUsername;
-        } else {
-          return await suggestUsername(base, attempt + 1);
-        }
-      } catch (error) {
-        return `${base}${Date.now()}`;
-      }
-    };
+    if (!formValues.fullname) {
+      if (!user_metadata.username) setValue("username", "");
+      return;
+    }
+    if (user_metadata.username) return;
+    startCheckUsername();
+    timeoutID = setTimeout(async () => {
+      const newUsername = await suggestUsername(formValues.fullname);
+      setValue("username", newUsername);
+      stopCheckUsername();
+    }, 500);
 
-    const subscription = watch(async (values, { name, type }) => {
-      if (name === "fullname") {
-        clearTimeout(timeoutID);
-        if (!values.fullname) {
-          if (!user_metadata.username) setValue("username", "");
-          return;
-        }
-        if (user_metadata.username) return;
-        const usernameBase = removeVietnameseTones(values.fullname)
-          .split("")
-          .filter((c) => /[a-z0-9]/g.test(c.toLowerCase()))
-          .join("")
-          .toLowerCase();
-
-        startCheckUsername();
-        timeoutID = setTimeout(async () => {
-          const newUsername = await suggestUsername(usernameBase, 0);
-          setValue("username", newUsername);
-          stopCheckUsername();
-        }, 500);
-      } else if (name === "username") {
-        clearTimeout(timeoutID);
-
-        if (!values.username || values.username === user_metadata.username) {
-          clearErrors("username");
-          stopCheckUsername();
-
-          return;
-        }
-
-        startCheckUsername();
-        timeoutID = setTimeout(async () => {
-          await trigger("username");
-          stopCheckUsername();
-        }, 500);
-      }
-    });
-
-    return () => {
-      clearTimeout(timeoutID);
-      subscription.unsubscribe();
-    };
-  }, [watch, setValue, clearErrors, isProcessing.editUsername, trigger]);
+    return () => clearTimeout(timeoutID);
+  }, [
+    formValues.fullname,
+    setValue,
+    startCheckUsername,
+    stopCheckUsername,
+    dirtyFields,
+  ]);
 
   const handleUpdate = (data) => {
     auth
@@ -180,18 +165,16 @@ export default function UpdateInfo() {
           isClosable: true,
         });
       })
-      .catch(() => {
+      .catch((error) => {
         toast({
           title: "Cập nhật thất bại",
           description: "Thông tin không hợp lệ hoặc username đã tồn tại.",
-          status: "success",
+          status: "error",
           isClosable: true,
         });
         console.error(error);
       });
   };
-
-  const username = watch("username");
 
   return (
     <>
@@ -262,36 +245,42 @@ export default function UpdateInfo() {
               </Box>
             )}
             {isProcessing.checkUsername && (
-              <Box mt="1" fontSize="sm" color="gray.500">
+              <Box w="full" fontSize="sm" color="gray.500">
                 Đang kiểm tra...
               </Box>
             )}
-            {!isProcessing.checkUsername && !errors.username && (
-              <Flex gap="1" fontSize="sm" color="gray.500">
-                <Box w="full">
-                  <Box>Trang cá nhân của bạn sẽ là:</Box>
-                  <Box as="strong" fontWeight="semibold" wordBreak="break-all">
-                    https://vietlach.vn/{username || "username"}
-                  </Box>
-                </Box>
-                <Flex alignItems="center" gap="3">
-                  {!isProcessing.editUsername && (
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() =>
-                        setIsProcessing((prevState) => ({
-                          ...prevState,
-                          editUsername: true,
-                        }))
-                      }
+            {formValues.username &&
+              !isProcessing.checkUsername &&
+              !errors.username && (
+                <Flex gap="1" fontSize="sm" color="gray.500">
+                  <Box w="full">
+                    <Box>Trang cá nhân của bạn sẽ là:</Box>
+                    <Box
+                      as="strong"
+                      fontWeight="semibold"
+                      wordBreak="break-all"
                     >
-                      <Icon as={BiPencil} />
-                    </Button>
-                  )}
+                      https://vietlach.vn/{formValues.username || "username"}
+                    </Box>
+                  </Box>
+                  <Flex alignItems="center" gap="3">
+                    {!isProcessing.editUsername && (
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() =>
+                          setIsProcessing((prevState) => ({
+                            ...prevState,
+                            editUsername: true,
+                          }))
+                        }
+                      >
+                        <Icon as={BiPencil} />
+                      </Button>
+                    )}
+                  </Flex>
                 </Flex>
-              </Flex>
-            )}
+              )}
           </Flex>
           <Button type="submit" mt="4" isFullWidth>
             Cập nhật
