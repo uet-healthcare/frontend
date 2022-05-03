@@ -1,4 +1,7 @@
+import { useToast } from "@chakra-ui/react";
 import RichMarkdownEditor from "rich-markdown-editor";
+import { getS3FileUrl, storageClient } from "utils/storage";
+import { generateRandomFileName } from "utils/utils";
 
 const colors = {
   almostBlack: "#181A1B",
@@ -123,6 +126,8 @@ export const dark = {
 };
 
 export default function Editor({ placeholder, defaultValue, onChange }) {
+  const toast = useToast();
+
   return (
     <RichMarkdownEditor
       value={defaultValue}
@@ -132,6 +137,40 @@ export default function Editor({ placeholder, defaultValue, onChange }) {
       theme={light}
       dictionary={{
         newLineEmpty: "Gõ '/' để chèn tiêu đề, đường dẫn hay ảnh...",
+      }}
+      uploadImage={async (file) => {
+        const fileName = generateRandomFileName(file);
+        if (storageClient) {
+          try {
+            const response = await storageClient
+              .from("public")
+              .upload(`images/${fileName}`, file);
+            if (response.data && response.data.Key) {
+              return getS3FileUrl(response.data.Key);
+            }
+            toast({
+              title: "Đã có lỗi xảy ra",
+              description: "Không thể upload hình ảnh",
+              status: "error",
+              isClosable: true,
+            });
+          } catch (error) {
+            toast({
+              title: "Đã có lỗi xảy ra",
+              description: "Không thể upload hình ảnh",
+              status: "error",
+              isClosable: true,
+            });
+            console.error(error);
+          }
+        } else {
+          toast({
+            title: "Bạn chưa đăng nhập",
+            description: "Vui lòng đăng nhập để sử dụng chức năng này",
+            status: "error",
+            isClosable: true,
+          });
+        }
       }}
     />
   );

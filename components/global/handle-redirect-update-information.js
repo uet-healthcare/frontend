@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
+import { setupStorage } from "utils/storage";
 
 export function HandleRedirectUpdateInformation() {
   const router = useRouter();
@@ -24,9 +25,11 @@ export function HandleRedirectUpdateInformation() {
     } else {
       const currentUser = auth.currentUser();
       if (currentUser) {
+        const accessToken = currentUser.token.access_token;
         mainAPI.defaults.headers.common[
           "Authorization"
-        ] = `Bearer ${currentUser.token.access_token}`;
+        ] = `Bearer ${accessToken}`;
+        setupStorage(accessToken);
       }
     }
 

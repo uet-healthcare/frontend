@@ -59,3 +59,21 @@ export const getSocialImage = (props) => {
     title
   )}&subtitle=${base64_encode(subtitle)}&path=${base64_encode(path)}`;
 };
+
+export const generateRandomFileName = (file) => {
+  const now = Date.now();
+  const currentDate = new Intl.DateTimeFormat("fr-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+  const randomString =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+
+  const nameTokens = file.name.split(".");
+  let ext =
+    nameTokens.length > 1 ? `.${nameTokens[nameTokens.length - 1]}` : "";
+
+  return `${currentDate}-${now}-${randomString}${ext}`;
+};
