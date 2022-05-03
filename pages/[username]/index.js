@@ -1,7 +1,7 @@
 import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
 import { CommonSEO } from "components/seo";
 import Link from "next/link";
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import { mainAPI } from "utils/axios";
 import { getPostPath, getSocialImage } from "utils/utils";
 
@@ -21,7 +21,6 @@ export default function UserProfile({ userMetadata, posts }) {
     { name: "profile:username", content: userMetadata.username },
   ];
 
-  console.log(socialImage);
   return (
     <>
       <CommonSEO

@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useGlobalConfirmDialog } from "hooks/use-global";
 import { appContext } from "pages/_app";
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 
 export default function GlobalConfirmDialog() {
   const appState = useContext(appContext);
@@ -20,6 +20,8 @@ export default function GlobalConfirmDialog() {
   const cancelRef = useRef();
 
   const onClose = () => confirmDialog(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <AlertDialog
@@ -40,7 +42,20 @@ export default function GlobalConfirmDialog() {
               <Button colorScheme="gray" ref={cancelRef} onClick={onClose}>
                 Bỏ qua
               </Button>
-              <Button onClick={confirmObject?.action.onAction} ml={3}>
+              <Button
+                isLoading={isLoading}
+                onClick={() => {
+                  setIsLoading(true);
+                  confirmObject?.action.onAction({
+                    finishLoading: () => setIsLoading(false),
+                    resolve: () => {
+                      setIsLoading(false);
+                      onClose();
+                    },
+                  });
+                }}
+                ml={3}
+              >
                 {confirmObject?.action.name}
               </Button>
             </AlertDialogFooter>

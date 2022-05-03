@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { Box, Flex, Image } from "@chakra-ui/react";
 import { BackButton } from "components/back-button";
 import { CommonSEO } from "components/seo";
+import PostAction from "components/post/post-action";
 
 export default function PostDetail({ post }) {
   const router = useRouter();
@@ -58,15 +59,22 @@ export default function PostDetail({ post }) {
           lineHeight="tall"
           color="gray.900"
         >
-          <Flex alignItems="center" gap="1" color="gray.400" mb="2">
-            <BackButton />
-            <Link href="/">
-              <a>
-                <Box as="span" fontWeight="bold" _hover={{ color: "gray.600" }}>
-                  vietlach.vn
-                </Box>
-              </a>
-            </Link>
+          <Flex alignItems="center" justifyContent="space-between" mb="2">
+            <Flex alignItems="center" gap="1" color="gray.400">
+              <BackButton />
+              <Link href="/">
+                <a>
+                  <Box
+                    as="span"
+                    fontWeight="bold"
+                    _hover={{ color: "gray.600" }}
+                  >
+                    vietlach.vn
+                  </Box>
+                </a>
+              </Link>
+            </Flex>
+            <PostAction post={post} />
           </Flex>
           <Box
             as="h1"
