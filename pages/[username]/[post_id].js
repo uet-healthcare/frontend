@@ -33,7 +33,7 @@ export default function PostDetail({ post }) {
   const socialImage = getSocialImage({
     path: post.author.username,
     subtitle: post.author.full_name,
-    title: pageTitle,
+    title: post.title,
   });
 
   return (

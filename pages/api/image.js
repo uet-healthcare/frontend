@@ -5,11 +5,9 @@ import { resolve } from "path";
 const IMG_WIDTH = 1200;
 const IMG_HEIGHT = 600;
 
+GlobalFonts.registerFromPath(resolve("./public", "fonts", "Avenir-Next.ttc"));
 GlobalFonts.registerFromPath(
-  resolve("./public", "fonts", "PlayfairDisplay-Regular.ttf")
-);
-GlobalFonts.registerFromPath(
-  resolve("./public", "fonts", "PlayfairDisplay-SemiBold.ttf")
+  resolve("./public", "fonts", "Avenir-Next-Condensed.ttc")
 );
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
