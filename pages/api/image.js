@@ -6,9 +6,7 @@ const IMG_WIDTH = 1200;
 const IMG_HEIGHT = 600;
 
 GlobalFonts.registerFromPath(resolve("./public", "fonts", "Avenir-Next.ttc"));
-GlobalFonts.registerFromPath(
-  resolve("./public", "fonts", "Avenir-Next-Condensed.ttc")
-);
+GlobalFonts.registerFromPath(resolve("./public", "fonts", "OpenSans-Bold.ttf"));
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
   var words = text.split(" ");
@@ -52,7 +50,7 @@ function handler(req, res) {
   ctx.fillStyle = "#EDF2F7";
   ctx.fillRect(0, 0, IMG_WIDTH, 170);
 
-  const fontHeading = "'Avenir Next Pro', serif";
+  const fontHeading = "'Open Sans', serif";
   const fontBody = "'Avenir Next', serif";
 
   ctx.font = "bold 40px" + " " + fontBody;
@@ -72,7 +70,7 @@ function handler(req, res) {
   }
 
   if (xTitle) {
-    ctx.font = "bold 80px" + " " + fontHeading;
+    ctx.font = "bold 70px" + " " + fontHeading;
     ctx.fillStyle = "#1a202c";
     wrapText(ctx, xTitle, 70, 355, IMG_WIDTH - 100, 92);
   }
