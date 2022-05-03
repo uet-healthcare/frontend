@@ -66,6 +66,7 @@ export default function UserProfile({ userMetadata, posts }) {
                       h="8"
                       borderRadius="lg"
                       referrerPolicy="no-referrer"
+                      alt={userMetadata?.full_name + "'s avatar"}
                     />
                   ) : (
                     userMetadata.full_name?.[0]

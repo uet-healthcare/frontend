@@ -56,6 +56,7 @@ export default function AvatarDropdown({}) {
               flexShrink="0"
               borderRadius="lg"
               referrerPolicy="no-referrer"
+              alt={metadata?.full_name + "'s avatar"}
             />
           ) : (
             metadata?.full_name?.[0] || "G"

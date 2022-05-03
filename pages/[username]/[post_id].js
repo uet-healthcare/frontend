@@ -109,6 +109,7 @@ export default function PostDetail({ post }) {
                           h="8"
                           borderRadius="lg"
                           referrerPolicy="no-referrer"
+                          alt={post?.author?.full_name + "'s avatar"}
                         />
                       ) : (
                         post?.author?.full_name?.[0]
