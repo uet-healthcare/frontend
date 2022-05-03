@@ -35,7 +35,7 @@ export default function GlobalAlertDialog({}) {
             <AlertDialogBody>{alertObject?.message}</AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button colorScheme="gray" ref={cancelRef} onClick={onClose}>
                 Đóng
               </Button>
             </AlertDialogFooter>

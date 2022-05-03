@@ -37,14 +37,10 @@ export default function GlobalConfirmDialog() {
             <AlertDialogBody>{confirmObject?.message}</AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button colorScheme="gray" ref={cancelRef} onClick={onClose}>
                 Bỏ qua
               </Button>
-              <Button
-                colorScheme="green"
-                onClick={confirmObject?.action.onAction}
-                ml={3}
-              >
+              <Button onClick={confirmObject?.action.onAction} ml={3}>
                 {confirmObject?.action.name}
               </Button>
             </AlertDialogFooter>
