@@ -37,6 +37,7 @@ export const GoogleLoginButton = ({ children }) => {
   return (
     <Button
       variant="ghost"
+      colorScheme="gray"
       onClick={() =>
         window.open(auth.loginExternalUrl("google"), "_self").focus()
       }

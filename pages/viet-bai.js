@@ -17,6 +17,8 @@ import { BackButton } from "components/back-button";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { CommonSEO } from "components/seo";
+import { getSocialImage } from "utils/utils";
 
 const schemas = yup.object().shape({
   title: yup.string().required("Bạn chưa viết tiêu đề"),
@@ -113,6 +115,7 @@ export default function WritePost() {
 
   return (
     <>
+      <CommonSEO title="Viết bài - Vietlach" ogImage={getSocialImage()} />
       <Box h="100vh" position="relative">
         <Flex
           alignItems="baseline"

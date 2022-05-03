@@ -37,7 +37,7 @@ const h2Render = ({ node, children, className, ...props }) => (
 
 const components = {
   a: ({ node, children, className, ...props }) => (
-    <Link color="red.500" textDecoration="underline" {...props}>
+    <Link color="blue.600" textDecoration="underline" {...props}>
       {children}
     </Link>
   ),

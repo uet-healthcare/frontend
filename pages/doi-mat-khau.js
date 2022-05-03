@@ -9,9 +9,11 @@ import {
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
+import { CommonSEO } from "components/seo";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { auth } from "utils/auth";
+import { getSocialImage } from "utils/utils";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -56,6 +58,11 @@ export default function ChangePassword() {
 
   return (
     <>
+      <CommonSEO
+        title="Đổi mật khẩu - Vietlach"
+        ogImage={getSocialImage()}
+        noIndex={true}
+      />
       <Flex
         alignItems="center"
         justifyContent="space-between"

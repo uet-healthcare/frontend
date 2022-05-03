@@ -8,6 +8,7 @@ export const BackButton = ({ children }) => {
   return (
     <Button
       variant="ghost"
+      colorScheme="gray"
       fontSize="xl"
       onClick={() => {
         if (window.history.length > 2) router.back();

@@ -14,6 +14,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { auth } from "utils/auth";
 import { signInSchema } from "utils/schemas";
+import { CommonSEO } from "components/seo";
+import { getSocialImage } from "utils/utils";
 
 export default function SignIn() {
   const toast = useToast();
@@ -46,6 +48,11 @@ export default function SignIn() {
 
   return (
     <>
+      <CommonSEO
+        title="Đăng nhập vào Vietlach"
+        ogType="website"
+        ogImage={getSocialImage()}
+      />
       <Flex
         alignItems="baseline"
         justifyContent="space-between"

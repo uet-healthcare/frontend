@@ -9,11 +9,13 @@ import {
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { GoogleLoginButton } from "components/google-login-button";
+import { CommonSEO } from "components/seo";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { auth } from "utils/auth";
 import { signInSchema } from "utils/schemas";
+import { getSocialImage } from "utils/utils";
 
 export default function SignUps() {
   const toast = useToast();
@@ -59,6 +61,11 @@ export default function SignUps() {
 
   return (
     <>
+      <CommonSEO
+        title="Đăng ký tài khoản Vietlach"
+        ogType="website"
+        ogImage={getSocialImage()}
+      />
       <Flex
         alignItems="baseline"
         justifyContent="space-between"

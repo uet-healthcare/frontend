@@ -1,12 +1,12 @@
 import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
+import { CommonSEO } from "components/seo";
 import { useUserState } from "hooks/use-user-state";
 import Link from "next/link";
 
 import { Fragment, useEffect, useState } from "react";
-import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
-import { getPostPath } from "utils/utils";
+import { getPostPath, getSocialImage } from "utils/utils";
 
 const POSTS_PER_PAGE = 10;
 
@@ -56,6 +56,12 @@ export default function Home({ posts: initialPosts }) {
 
   return (
     <>
+      <CommonSEO
+        title={"Vietlach"}
+        description="Chia sẻ góc nhìn về mọi thứ trong cuộc sống quanh bạn."
+        ogType="website"
+        ogImage={getSocialImage()}
+      />
       <Flex
         alignItems="baseline"
         justifyContent="space-between"

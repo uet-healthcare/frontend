@@ -21,7 +21,8 @@ import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import { removeVietnameseTones } from "utils/string";
 import * as yup from "yup";
-import { suggestUsername } from "utils/utils";
+import { getSocialImage, suggestUsername } from "utils/utils";
+import { CommonSEO } from "components/seo";
 
 const USERNAME_EXISTED_MESSAGE = "Rất tiếc, username này đã tồn tại!";
 
@@ -178,6 +179,11 @@ export default function UpdateInfo() {
 
   return (
     <>
+      <CommonSEO
+        title="Cập nhật thông tin tài khoản - Vietlach"
+        ogImage={getSocialImage()}
+        noIndex={true}
+      />
       <Flex
         alignItems="center"
         justifyContent="space-between"

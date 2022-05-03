@@ -1,12 +1,36 @@
 import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
+import { CommonSEO } from "components/seo";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { mainAPI } from "utils/axios";
-import { getPostPath } from "utils/utils";
+import { getPostPath, getSocialImage } from "utils/utils";
 
 export default function UserProfile({ userMetadata, posts }) {
+  const pageTitle = userMetadata.full_name + " - Trang cá nhân";
+  const pageDescription = "";
+  const ogType = "profile";
+
+  const socialImage = getSocialImage({
+    path: userMetadata.username,
+    subtitle: "Trang cá nhân",
+    title: userMetadata.full_name,
+  });
+
+  const otherMetas = [
+    { name: "profile:full_name", content: userMetadata.full_name },
+    { name: "profile:username", content: userMetadata.username },
+  ];
+
+  console.log(socialImage);
   return (
     <>
+      <CommonSEO
+        title={pageTitle}
+        description={pageDescription}
+        ogType={ogType}
+        ogImage={socialImage}
+        others={otherMetas}
+      />
       <Flex
         alignItems="baseline"
         justifyContent="space-between"

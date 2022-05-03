@@ -1,12 +1,12 @@
 import PostBody from "components/post-body";
 import { useRouter } from "next/router";
-import { getPostIDFromPath } from "utils/utils";
+import { getPostIDFromPath, getSocialImage } from "utils/utils";
 import { mainAPI } from "utils/axios";
-import Head from "next/head";
 import Link from "next/link";
 import { useEffect } from "react";
-import { Box, Button, Flex, Image } from "@chakra-ui/react";
+import { Box, Flex, Image } from "@chakra-ui/react";
 import { BackButton } from "components/back-button";
+import { CommonSEO } from "components/seo";
 
 export default function PostDetail({ post }) {
   const router = useRouter();
@@ -17,11 +17,33 @@ export default function PostDetail({ post }) {
     }
   }, [router, post]);
 
+  const pageTitle = post.title + " - Vietlach";
+  const pageDescription =
+    (post.content
+      .split("\n")
+      .filter(
+        (line) =>
+          !line.startsWith("# ") && !line.startsWith("\n") && line.length >= 5
+      )
+      .slice(0, 3)
+      .join(" ")
+      .substr(0, 157) ||
+      post.content.split("\n").slice(0, 3).join(" ").substr(0, 157)) + "...";
+
+  const socialImage = getSocialImage({
+    path: post.author.username,
+    subtitle: post.author.full_name,
+    title: pageTitle,
+  });
+
   return (
     <>
-      <Head>
-        <title>{post.title}</title>
-      </Head>
+      <CommonSEO
+        title={pageTitle}
+        description={pageDescription}
+        ogType="article"
+        ogImage={socialImage}
+      />
       <Flex
         justifyContent="center"
         px="4"
