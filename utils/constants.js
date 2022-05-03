@@ -1,5 +1,5 @@
-export const SITE_URL = "https://vietlach.vn";
-export const SITE_NAME = "vietlach.vn";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
+export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME;
 
 export const DEFAULT_USER_METADATA = {
   username: "",

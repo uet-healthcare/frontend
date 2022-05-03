@@ -70,7 +70,7 @@ function handler(req, res) {
   }
 
   if (xTitle) {
-    ctx.font = "bold 70px" + " " + fontHeading;
+    ctx.font = "bold 76px" + " " + fontHeading;
     ctx.fillStyle = "#1a202c";
     wrapText(ctx, xTitle, 70, 355, IMG_WIDTH - 100, 92);
   }

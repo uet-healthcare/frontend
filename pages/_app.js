@@ -9,6 +9,8 @@ import { HandleRedirectUpdateInformation } from "components/global/handle-redire
 import React from "react";
 import GlobalAlertDialog from "components/global/global-alert-dialog";
 import GlobalConfirmDialog from "components/global/global-confirm-dialog";
+import Head from "next/head";
+import Script from "next/script";
 
 export const appContext = React.createContext(null);
 appContext.displayName = "GlobalContext";
@@ -19,20 +21,37 @@ function MyApp({ Component, pageProps }) {
   });
 
   return (
-    <appContext.Provider
-      value={{ global: globalState, setGlobal: setGlobalState }}
-    >
-      <ChakraProvider theme={chakraExtendedTheme}>
-        <ErrorBoundary>
-          <CustomAxiosInterceptors />
-          <HandleRouteChange />
-          <HandleRedirectUpdateInformation />
-          <GlobalAlertDialog />
-          <GlobalConfirmDialog />
-          <Component {...pageProps} />
-        </ErrorBoundary>
-      </ChakraProvider>
-    </appContext.Provider>
+    <>
+      {/* <!-- Global site tag (gtag.js) - Google Analytics --> */}
+      <Script
+        strategy="lazyOnload"
+        src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
+      />
+      <Script id="google-analytics" strategy="lazyOnload">
+        {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}');
+          `}
+      </Script>
+
+      <appContext.Provider
+        value={{ global: globalState, setGlobal: setGlobalState }}
+      >
+        <ChakraProvider theme={chakraExtendedTheme}>
+          <ErrorBoundary>
+            <CustomAxiosInterceptors />
+            <HandleRouteChange />
+            <HandleRedirectUpdateInformation />
+            <GlobalAlertDialog />
+            <GlobalConfirmDialog />
+            <Component {...pageProps} />
+          </ErrorBoundary>
+        </ChakraProvider>
+      </appContext.Provider>
+    </>
   );
 }
 
