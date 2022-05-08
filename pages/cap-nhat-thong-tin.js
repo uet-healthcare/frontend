@@ -23,12 +23,14 @@ import { removeVietnameseTones } from "utils/string";
 import * as yup from "yup";
 import { getSocialImage, suggestUsername } from "utils/utils";
 import { CommonSEO } from "components/seo";
+import { useRouter } from "next/router";
 
 const USERNAME_EXISTED_MESSAGE = "Rất tiếc, username này đã tồn tại!";
 
 export default function UpdateInfo() {
   const toast = useToast();
   const userState = useUserState();
+  const router = useRouter();
 
   const [isProcessing, setIsProcessing] = useState({
     checkUsername: false,
@@ -165,6 +167,7 @@ export default function UpdateInfo() {
           status: "success",
           isClosable: true,
         });
+        setTimeout(() => router.push("/"), 1000);
       })
       .catch((error) => {
         toast({

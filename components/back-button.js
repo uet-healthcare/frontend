@@ -2,7 +2,7 @@ import { Button, Icon } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { BiLeftArrowAlt } from "react-icons/bi";
 
-export const BackButton = ({ children }) => {
+export const BackButton = ({ children, ...props }) => {
   const router = useRouter();
 
   return (
@@ -16,7 +16,11 @@ export const BackButton = ({ children }) => {
       }}
       p="0"
     >
-      {children ? children : <Icon as={BiLeftArrowAlt} w="6" h="6" />}
+      {children ? (
+        children
+      ) : (
+        <Icon as={BiLeftArrowAlt} w="6" h="6" {...props} />
+      )}
     </Button>
   );
 };

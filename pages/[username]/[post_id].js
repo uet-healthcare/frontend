@@ -130,7 +130,7 @@ export default function PostDetail({ post }) {
                 </a>
               </Link>
               <Box display={{ base: "none", sm: "inline-block" }}>&#183;</Box>
-              <div>{post.created_time}</div>
+              <div>{post.created_at}</div>
             </Flex>
           </Flex>
           <Flex flexDirection="column" gap={{ base: "4", sm: "6" }}>
@@ -152,9 +152,9 @@ export async function getServerSideProps(context) {
       post: post
         ? {
             ...post,
-            created_time: Intl.DateTimeFormat("vi-VN", {
+            created_at: Intl.DateTimeFormat("vi-VN", {
               dateStyle: "full",
-            }).format(new Date(post.created_time)),
+            }).format(new Date(post.created_at)),
           }
         : null,
     },

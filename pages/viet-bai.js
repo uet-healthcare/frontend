@@ -11,6 +11,7 @@ import {
   FormErrorMessage,
   Input,
   SkeletonText,
+  Text,
   useToast,
 } from "@chakra-ui/react";
 import { BackButton } from "components/back-button";
@@ -39,21 +40,82 @@ export default function WritePost() {
   const [isImport, setIsImport] = useState(false);
   const [defaultContent, setDefaultContent] = useState("");
   const [importURL, setImportURL] = useState("");
-  const [isImporting, setIsImporting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const uploadInputRef = useRef();
+  const postID = router.query.id;
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [changeCount, setChangeCount] = useState(0);
+
+  const headerRef = useRef();
+
   const {
     register,
-    getValues,
     setValue,
     trigger,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitted },
   } = useForm({ resolver: yupResolver(schemas) });
 
+  const _title = watch("title");
+  const _content = watch("content");
+
+  useEffect(() => {
+    if (!router.isReady || (!_title && !_content)) return;
+
+    setChangeCount((value) => value + 1);
+    setIsSaved(false);
+
+    const saveDraft = async () => {
+      setIsSaving(true);
+      console.log("send", { _title, _content });
+      mainAPI
+        .put("/private/posts", {
+          id: postID,
+          title: _title,
+          content: _content,
+          status: "draft",
+        })
+        .then((response) => {
+          if (response.status === 200 && response.data.post_id) {
+            setIsSaved(true);
+          } else {
+            toast({
+              title: "Đã có lỗi xảy ra",
+              description: "Vui lòng thử lại sau hoặc liên hệ quản trị viên",
+              status: "error",
+              isClosable: true,
+            });
+            console.error("handlePost", response);
+          }
+        })
+        .catch((error) => {
+          console.error("handlePost catch", error.code);
+        })
+        .finally(() => {
+          setIsSaving(false);
+        });
+    };
+
+    console.log(changeCount);
+    if (changeCount >= 30) {
+      saveDraft();
+      setChangeCount(0);
+    }
+
+    let timeoutID = setTimeout(() => {
+      saveDraft();
+      setChangeCount(0);
+    }, 1200);
+
+    return () => clearTimeout(timeoutID);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, _title, _content]);
+
   // debounce import from URL
   useEffect(() => {
     if (!importURL) return;
-    setIsImporting(true);
     const timeoutID = setTimeout(async () => {
       try {
         const response = await fetch(importURL);
@@ -69,7 +131,7 @@ export default function WritePost() {
           isClosable: true,
         });
       } finally {
-        setIsImporting(false);
+        setIsLoading(false);
         setIsImport(false);
         trigger("content");
       }
@@ -78,11 +140,68 @@ export default function WritePost() {
     return () => clearTimeout(timeoutID);
   }, [toast, importURL, setValue, trigger]);
 
-  const handlePost = (data) => {
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (!postID) {
+      mainAPI
+        .post(`/private/posts`)
+        .then((response) => {
+          if (response.status === 200) {
+            const { post_id } = response.data;
+            if (post_id) {
+              router.replace(`/viet-bai?id=${post_id}`);
+            }
+          }
+        })
+        .catch((error) => {
+          toast({
+            title: "Đã có lỗi xảy ra",
+            description: "Không thể khởi tạo bài viết, vui lòng thử lại sau",
+            status: "error",
+            isClosable: true,
+          });
+          console.error(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+
+      return;
+    }
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      mainAPI
+        .get(`/private/posts?id=${postID}`)
+        .then((response) => {
+          if (response.status === 200) {
+            const { title, content } = response.data?.[0];
+            setValue("title", title);
+            setValue("content", content);
+            setDefaultContent(content);
+          }
+        })
+        .catch((error) => {
+          toast({
+            title: "Đã có lỗi xảy ra",
+            description: "Không thể lấy dữ liệu bài viết. Vui lòng thử lại sau",
+            status: "error",
+            isClosable: true,
+          });
+          console.error(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    };
+    fetchData();
+  }, [router, postID, setValue, toast]);
+
+  const handlePost = (status) => (data) => {
     const { title, content } = data;
 
     mainAPI
-      .post("/private/posts", { title, content })
+      .put("/private/posts", { id: postID, title, content, status })
       .then((response) => {
         const route = title
           .split("")
@@ -97,7 +216,11 @@ export default function WritePost() {
           .join("");
 
         if (response.status === 200 && response.data.post_id) {
-          router.push(`/bai-viet/${route}-${response.data.post_id}`);
+          if (status === "draft") {
+            router.push(`/me/bai-viet`);
+          } else {
+            router.push(`/bai-viet/${route}-${response.data.post_id}`);
+          }
         } else {
           toast({
             title: "Đã có lỗi xảy ra",
@@ -115,11 +238,11 @@ export default function WritePost() {
 
   return (
     <>
-      <CommonSEO title="Viết bài - Vietlach" ogImage={getSocialImage()} />
+      <CommonSEO title="Viết bài mới - Vietlach" ogImage={getSocialImage()} />
       <Box h="100vh" position="relative">
         <Flex
-          alignItems="baseline"
           justifyContent="space-between"
+          alignSelf="flex-start"
           mx="auto"
           px="6"
           w="full"
@@ -128,33 +251,65 @@ export default function WritePost() {
         >
           <Flex
             as="form"
-            onSubmit={handleSubmit(handlePost)}
+            onSubmit={handleSubmit(handlePost("public"))}
             flexDirection="column"
             gap="3"
-            py="8"
+            pt={`${16 + Math.floor(headerRef.current?.offsetHeight || 0)}px`}
+            pb="8"
             w="full"
           >
             <Flex
-              alignItems="center"
-              gap="3"
-              color="gray.400"
-              _hover={{ color: "gray.600" }}
+              justifyContent="space-between"
+              mb="6"
+              position="fixed"
+              top="0"
+              left="0"
+              zIndex="100"
+              backgroundColor="white"
+              pt="4"
+              pb="5"
+              w="full"
+              ref={headerRef}
             >
-              <BackButton />
-            </Flex>
-            <Flex alignItems="center" justifyContent="space-between" mb="6">
-              <Box
-                as="h1"
-                fontSize="2xl"
-                fontWeight="semibold"
-                color="gray.600"
-                fontFamily="heading"
+              <Flex
+                justifyContent="space-between"
+                alignSelf="flex-start"
+                mx="auto"
+                px="6"
+                w="full"
+                maxW="container.sm"
+                overflow="auto"
               >
-                Tạo bài viết mới
-              </Box>
-              <Button type="submit" onClick={handlePost}>
-                Đăng bài
-              </Button>
+                <Flex gap="1" alignItems="center">
+                  <Flex
+                    alignItems="center"
+                    color="gray.400"
+                    _hover={{ color: "gray.600" }}
+                  >
+                    <BackButton />
+                  </Flex>
+                  <Flex gap="5" alignItems="baseline">
+                    <Box color="gray.700" fontFamily="heading">
+                      Viết bài mới
+                    </Box>
+                    {isSaving && (
+                      <Text color="gray.500" h="2">
+                        Đang lưu...
+                      </Text>
+                    )}
+                    {!isSaving && isSaved && (
+                      <Text color="gray.600" h="2">
+                        Đã lưu
+                      </Text>
+                    )}
+                  </Flex>
+                </Flex>
+                <Flex gap="2" alignItems="center">
+                  <Button type="submit" size="sm">
+                    Đăng bài
+                  </Button>
+                </Flex>
+              </Flex>
             </Flex>
             <FormControl isInvalid={errors.title}>
               <Input placeholder="Tiêu đề bài viết" {...register("title")} />
@@ -162,7 +317,7 @@ export default function WritePost() {
                 <FormErrorMessage>{errors.title?.message}</FormErrorMessage>
               )}
             </FormControl>
-            {!getValues("content") && (
+            {!_content && (
               <div>
                 <Box
                   as="input"
@@ -227,7 +382,7 @@ export default function WritePost() {
               </div>
             )}
             <Flex
-              flexDirection="col"
+              flexDirection="column"
               mt="4"
               gap={{ base: "4", sm: "6" }}
               lineHeight="tall"
@@ -236,7 +391,7 @@ export default function WritePost() {
               spellCheck="false"
               sx={{ "& > div": { w: "full" } }}
             >
-              {isImporting ? (
+              {isLoading ? (
                 <Box>
                   <SkeletonText mt="4" noOfLines={4} spacing="4" />
                 </Box>

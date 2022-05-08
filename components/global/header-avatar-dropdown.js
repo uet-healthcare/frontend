@@ -10,7 +10,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { BiCog, BiLock, BiLogOut, BiUser } from "react-icons/bi";
+import { BiCog, BiFile, BiLock, BiLogOut, BiUser } from "react-icons/bi";
 import Link from "next/link";
 import { useUserState } from "hooks/use-user-state";
 import { useGlobalAlertDialog } from "hooks/use-global";
@@ -39,7 +39,7 @@ export default function AvatarDropdown({}) {
 
   return (
     <Menu placement="bottom-end">
-      <MenuButton>
+      <MenuButton type="button">
         <Flex
           alignItems="center"
           justifyContent="center"
@@ -64,7 +64,7 @@ export default function AvatarDropdown({}) {
         </Flex>
       </MenuButton>
       <MenuList fontSize="sm">
-        <MenuGroup title="Cá nhân">
+        <MenuGroup title={metadata?.username}>
           <Link href={`/${metadata?.username}`}>
             <a>
               <MenuItem
@@ -75,6 +75,19 @@ export default function AvatarDropdown({}) {
                 }
               >
                 Trang cá nhân
+              </MenuItem>
+            </a>
+          </Link>
+          <Link href={`/me/bai-viet`}>
+            <a>
+              <MenuItem
+                icon={
+                  <Flex alignItems="center">
+                    <Icon as={BiFile} w="3.5" h="3.5" />
+                  </Flex>
+                }
+              >
+                Bài viết
               </MenuItem>
             </a>
           </Link>

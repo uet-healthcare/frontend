@@ -43,7 +43,7 @@ export default function PostAction({ post }) {
         />
       </MenuButton>
       <MenuList fontSize="sm">
-        <Link href={`/bai-viet/chinh-sua/${post.post_id}`}>
+        <Link href={`/me/sua-bai-viet/${post.post_id}`}>
           <a>
             <MenuItem
               icon={
@@ -76,7 +76,11 @@ export default function PostAction({ post }) {
                       },
                     })
                     .then((response) => {
-                      if (response.status === 200 && response.data && response.data.rows_deleted > 0) {
+                      if (
+                        response.status === 200 &&
+                        response.data &&
+                        response.data.rows_deleted > 0
+                      ) {
                         resolve();
                         toast({
                           title: "Xoá bài viết thành công!",

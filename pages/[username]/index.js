@@ -146,7 +146,7 @@ export default function UserProfile({ userMetadata, posts }) {
                         </a>
                       </Link>
                       <div>&#183;</div>
-                      <div>{post.created_time}</div>
+                      <div>{post.created_at}</div>
                     </Flex>
                   </Flex>
                 </VStack>
@@ -174,9 +174,9 @@ export async function getServerSideProps(context) {
       posts: posts
         ? posts.map((el) => ({
             ...el,
-            created_time: Intl.DateTimeFormat("vi-VN", {
+            created_at: Intl.DateTimeFormat("vi-VN", {
               dateStyle: "long",
-            }).format(new Date(el.created_time)),
+            }).format(new Date(el.created_at)),
           }))
         : null,
     },

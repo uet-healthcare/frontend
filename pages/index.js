@@ -39,9 +39,9 @@ export default function Home({ posts: initialPosts }) {
         if (response.status === 200 && response.data) {
           const responsePosts = response.data.map((post) => ({
             ...post,
-            created_time: Intl.DateTimeFormat("vi-VN", {
+            created_at: Intl.DateTimeFormat("vi-VN", {
               dateStyle: "long",
-            }).format(new Date(post.created_time)),
+            }).format(new Date(post.created_at)),
           }));
           if (response.data.length) {
             setPosts((prevState) => [...prevState, ...responsePosts]);
@@ -83,7 +83,7 @@ export default function Home({ posts: initialPosts }) {
           </a>
         </Link>
         <Flex alignItems="center" gap="3" fontSize="sm" color="gray.600">
-          <Link href={userState.isLoggedIn ? "/viet-bai" : "/dang-nhap"}>
+          <Link href={userState.isLoggedIn ? "/me/bai-viet" : "/dang-nhap"}>
             <a>
               <Box _hover={{ color: "gray.900" }}>
                 {userState.isLoggedIn ? "Viết bài" : "Đăng nhập"}
@@ -177,7 +177,7 @@ export default function Home({ posts: initialPosts }) {
                         </a>
                       </Link>
                       <div>&#183;</div>
-                      <div>{post.created_time}</div>
+                      <div>{post.created_at}</div>
                     </Flex>
                   </Flex>
                 </VStack>
@@ -198,9 +198,9 @@ export async function getServerSideProps() {
       posts: posts
         ? posts.map((el) => ({
             ...el,
-            created_time: Intl.DateTimeFormat("vi-VN", {
+            created_at: Intl.DateTimeFormat("vi-VN", {
               dateStyle: "long",
-            }).format(new Date(el.created_time)),
+            }).format(new Date(el.created_at)),
           }))
         : null,
     },
