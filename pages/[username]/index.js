@@ -139,20 +139,36 @@ export default function UserProfile({ userMetadata, posts }) {
             pt="8"
           >
             <Flex flexDirection="column" gap="2">
-              <Image
-                flexShrink={0}
-                src={userMetadata.avatar_url}
+              <Flex
+                alignItems="center"
+                justifyContent="center"
+                flexShrink="0"
                 w="24"
                 h="24"
                 borderRadius="full"
-                referrerPolicy="no-referrer"
-                alt={userMetadata?.full_name + "'s avatar"}
-                display={{ base: "block", lg: "none" }}
-              />
+                backgroundColor="gray.100"
+                color="gray.700"
+                fontSize="2xl"
+              >
+                {userMetadata.avatar_url ? (
+                  // eslint-disable-next-line
+                  <Image
+                    flexShrink={0}
+                    src={userMetadata.avatar_url}
+                    w="24"
+                    h="24"
+                    borderRadius="full"
+                    referrerPolicy="no-referrer"
+                    alt={userMetadata?.full_name + "'s avatar"}
+                  />
+                ) : (
+                  userMetadata.full_name?.[0]
+                )}
+              </Flex>
               <Text fontSize="4xl" fontWeight="bold" fontFamily="heading">
                 {userMetadata.full_name}
               </Text>
-              {currentTab === 0 && (
+              {currentTab === 0 && userMetadata.bio && (
                 <Text
                   fontSize="md"
                   textColor="gray.600"
