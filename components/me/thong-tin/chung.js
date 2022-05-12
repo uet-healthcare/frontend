@@ -7,30 +7,27 @@ import {
   FormLabel,
   Icon,
   Input,
+  Textarea,
   useToast,
 } from "@chakra-ui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import AvatarDropdown from "components/global/header-avatar-dropdown";
 import { debounce } from "utils/debounce";
 import { useUserState } from "hooks/use-user-state";
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiPencil } from "react-icons/bi";
-import { auth } from "utils/auth";
 import { mainAPI } from "utils/axios";
 import { removeVietnameseTones } from "utils/string";
 import * as yup from "yup";
-import { getSocialImage, suggestUsername } from "utils/utils";
+import { getSocialImage } from "utils/utils";
 import { CommonSEO } from "components/seo";
-import { useRouter } from "next/router";
+import { ImageUpload } from "components/ui/image-upload";
 
 const USERNAME_EXISTED_MESSAGE = "Rất tiếc, username này đã tồn tại!";
 
-export default function UpdateInfo() {
+export default function UpdateGeneralInfo() {
   const toast = useToast();
   const userState = useUserState();
-  const router = useRouter();
 
   const [isProcessing, setIsProcessing] = useState({
     checkUsername: false,
@@ -60,10 +57,7 @@ export default function UpdateInfo() {
         USERNAME_EXISTED_MESSAGE,
         (username) =>
           new Promise((resolve) => {
-            if (
-              !username ||
-              userState.data.user_metadata.username === username
-            ) {
+            if (!username || userState.metadata.username === username) {
               resolve(true);
               return;
             }
@@ -78,13 +72,19 @@ export default function UpdateInfo() {
                     username: username,
                   }
                 );
-                resolve(response?.data?.is_available);
+                const responseData = response.data;
+                resolve(
+                  response.status === 200 &&
+                    responseData.success &&
+                    responseData.data?.is_available
+                );
                 stopCheckUsername();
               },
               500
             );
           })
       ),
+    bio: yup.string().max(160, "Tối đa 160 ký tự"),
   });
 
   const {
@@ -119,55 +119,34 @@ export default function UpdateInfo() {
   );
 
   useEffect(() => {
-    const { user_metadata } = auth.currentUser();
-    setValue("fullname", user_metadata.full_name);
-    if (user_metadata.username) {
-      setValue("username", user_metadata.username);
+    if (!userState.isLoggedIn) return;
+    setValue("fullname", userState.metadata.full_name);
+    if (userState.metadata.username) {
+      setValue("username", userState.metadata.username);
     }
-  }, [setValue]);
-
-  useEffect(() => {
-    if (dirtyFields.username) return;
-    const { user_metadata } = auth.currentUser();
-    let timeoutID;
-
-    if (!formValues.fullname) {
-      if (!user_metadata.username) setValue("username", "");
-      return;
-    }
-    if (user_metadata.username) return;
-    startCheckUsername();
-    timeoutID = setTimeout(async () => {
-      const newUsername = await suggestUsername(formValues.fullname);
-      setValue("username", newUsername);
-      stopCheckUsername();
-    }, 500);
-
-    return () => clearTimeout(timeoutID);
-  }, [
-    formValues.fullname,
-    setValue,
-    startCheckUsername,
-    stopCheckUsername,
-    dirtyFields,
-  ]);
+    setValue("bio", userState.metadata.bio || "");
+    setValue("avatar_url", userState.metadata.avatar_url || "");
+  }, [userState, setValue]);
 
   const handleUpdate = (data) => {
-    auth
-      .currentUser()
-      .update({
-        data: {
-          full_name: data.fullname,
-          username: data.username,
-        },
+    mainAPI
+      .put(`/private/users/metadata`, {
+        full_name: data.fullname,
+        username: data.username,
+        bio: data.bio,
+        avatar_url: data.avatar_url,
       })
-      .then(() => {
-        toast({
-          title: "Cập nhật thành công!",
-          status: "success",
-          isClosable: true,
-        });
-        setTimeout(() => router.push("/"), 1000);
+      .then((response) => {
+        const responseData = response.data;
+        if (response.status === 200 && responseData.success) {
+          toast({
+            title: "Cập nhật thành công!",
+            status: "success",
+            isClosable: true,
+          });
+          window.localStorage.removeItem("user_metadata");
+          setTimeout(() => window.open("/", "_self"), 500);
+        }
       })
       .catch((error) => {
         toast({
@@ -188,32 +167,9 @@ export default function UpdateInfo() {
         noIndex={true}
       />
       <Flex
-        alignItems="center"
-        justifyContent="space-between"
-        px={{ base: "16px", sm: 0 }}
-        w="full"
-        maxW="container.sm"
-        mx="auto"
-      >
-        <Link href="/">
-          <a>
-            <Box py="3" fontSize="xl" fontWeight="bold">
-              <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="red.400">
-                .vn
-              </Box>
-            </Box>
-          </a>
-        </Link>
-        <AvatarDropdown />
-      </Flex>
-      <hr />
-      <Flex
         maxW="container.sm"
         mx={{ base: "4", sm: "auto" }}
-        mt="12"
+        mt="4"
         flexDirection="column"
         gap="4"
         rowGap={{ base: "4", sm: "8" }}
@@ -221,7 +177,7 @@ export default function UpdateInfo() {
         color="gray.900"
         fontSize={{ sm: "lg" }}
       >
-        <Box as="form" mx={{ sm: "32" }} onSubmit={handleSubmit(handleUpdate)}>
+        <Box as="form" onSubmit={handleSubmit(handleUpdate)}>
           <Flex flexDirection="column" w="full" gap="4">
             <Box>
               <FormControl isInvalid={errors.fullname}>
@@ -263,7 +219,7 @@ export default function UpdateInfo() {
               !errors.username && (
                 <Flex gap="1" fontSize="sm" color="gray.500">
                   <Box w="full">
-                    <Box>Trang cá nhân của bạn sẽ là:</Box>
+                    <Box>Trang cá nhân của bạn là:</Box>
                     <Box
                       as="strong"
                       fontWeight="semibold"
@@ -290,6 +246,50 @@ export default function UpdateInfo() {
                   </Flex>
                 </Flex>
               )}
+            <Box>
+              <FormControl isInvalid={errors.fullname}>
+                <FormLabel htmlFor="bio">Giới thiệu ngắn</FormLabel>
+                <Textarea
+                  placeholder="Giới thiệu ngắn về bản thân, tối đa 160 ký tự"
+                  {...register("bio")}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onBlur={(event) => {
+                    setValue(
+                      "bio",
+                      event.target.value
+                        .trim()
+                        .replaceAll("\n", " ")
+                        .replaceAll(/ {2,}/g, " ")
+                    );
+                  }}
+                  maxLength={160}
+                />
+                {errors.fullname && (
+                  <FormErrorMessage>
+                    {errors.fullname?.message}
+                  </FormErrorMessage>
+                )}
+              </FormControl>
+            </Box>
+            <Box>
+              <FormControl isInvalid={errors.fullname}>
+                <FormLabel htmlFor="bio">Ảnh đại diện</FormLabel>
+                <ImageUpload
+                  src={watch("avatar_url")}
+                  alt="avatar"
+                  onUpload={(value) => setValue("avatar_url", value)}
+                />
+                {errors.fullname && (
+                  <FormErrorMessage>
+                    {errors.fullname?.message}
+                  </FormErrorMessage>
+                )}
+              </FormControl>
+            </Box>
           </Flex>
           <Button type="submit" mt="4" isFullWidth>
             Cập nhật

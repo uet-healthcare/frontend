@@ -1,8 +1,6 @@
-import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
+import { Divider, Flex, VStack } from "@chakra-ui/react";
 import { CommonSEO } from "components/seo";
 import { useUserState } from "hooks/use-user-state";
-import Link from "next/link";
-import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import { mainAPI } from "utils/axios";
 import { UserDraftPosts } from "./draft";
@@ -16,17 +14,17 @@ export default function UserPosts({ status: postStatus }) {
     if (!userState.isLoggedIn) return;
 
     const fetchData = async () => {
-      const { data: posts } = await mainAPI.get(
-        `/private/posts?username=${userState.data.user_metadata.username}&status=${postStatus}`
+      const { data: responseData } = await mainAPI.get(
+        `/private/posts?username=${userState.metadata.username}&status=${postStatus}`
       );
-      setPosts(posts);
+      setPosts(responseData.data);
     };
     fetchData();
   }, [userState, postStatus]);
 
   if (!userState.isLoggedIn) return null;
 
-  const pageTitle = userState.data.user_metadata.full_name + " - Trang cá nhân";
+  const pageTitle = userState.metadata.full_name + " - Trang cá nhân";
 
   return (
     <>

@@ -1,3 +1,4 @@
+import { useUserState } from "hooks/use-user-state";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { auth } from "utils/auth";
@@ -6,6 +7,7 @@ import { setupStorage } from "utils/storage";
 
 export function HandleRedirectUpdateInformation() {
   const router = useRouter();
+  const userState = useUserState();
 
   useEffect(() => {
     const path = router.asPath;
@@ -33,22 +35,13 @@ export function HandleRedirectUpdateInformation() {
       }
     }
 
-    const redirectTo = "/cap-nhat-thong-tin";
-    const currentUser = auth.currentUser();
-
-    if (
-      !path.startsWith(redirectTo) &&
-      currentUser &&
-      currentUser.user_metadata
-    ) {
-      if (
-        !currentUser.user_metadata.full_name ||
-        !currentUser.user_metadata.username
-      ) {
+    const redirectTo = "/me/thong-tin/khoi-tao";
+    if (!path.startsWith(redirectTo) && userState.isLoggedIn) {
+      if (!userState.metadata.full_name || !userState.metadata.username) {
         router.push(redirectTo);
       }
     }
-  }, [router]);
+  }, [userState, router]);
 
   return null;
 }

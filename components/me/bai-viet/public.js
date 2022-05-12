@@ -3,7 +3,6 @@ import Link from "next/link";
 import { getPostPath } from "utils/utils";
 
 export function UserPublicPosts({ post }) {
-  console.log(post.author);
   const linkPost = post
     ? getPostPath(post.post_id, post.author.username, post.title)
     : "/";

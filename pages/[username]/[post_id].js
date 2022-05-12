@@ -78,7 +78,7 @@ export default function PostDetail({ post }) {
           </Flex>
           <Box
             as="h1"
-            fontSize={{ base: "xl", sm: "3xl" }}
+            fontSize={{ base: "2xl", sm: "4xl" }}
             fontWeight="bold"
             color="gray.800"
             fontFamily="heading"
@@ -87,13 +87,12 @@ export default function PostDetail({ post }) {
           >
             {post.title}
           </Box>
-          <Flex alignItems="center" gap="4" mb={{ base: "4", sm: "6" }}>
+          <Flex alignItems="center" gap="4" mb={{ base: "4", sm: "10" }}>
             <Flex
               flexDirection={{ base: "column-reverse", sm: "row" }}
               flexWrap="wrap"
               alignItems={{ base: "start", sm: "center" }}
               gap={{ base: "4", sm: "2.5" }}
-              fontSize="sm"
               color="gray.600"
             >
               <Link href={`/${post.author.username}`}>
@@ -145,7 +144,7 @@ export default function PostDetail({ post }) {
 export async function getServerSideProps(context) {
   const postID = getPostIDFromPath(context.query.post_id);
   const response = await mainAPI.get(`/public/posts?id=${postID}`);
-  const [post] = response.data;
+  const [post] = response.data.data;
 
   return {
     props: {

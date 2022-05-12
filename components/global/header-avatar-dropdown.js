@@ -1,6 +1,5 @@
 import { auth } from "utils/auth";
 import {
-  Box,
   Flex,
   Icon,
   Image,
@@ -35,7 +34,7 @@ export default function AvatarDropdown({}) {
       </Flex>
     );
   }
-  const metadata = userState.data.user_metadata;
+  const metadata = userState.metadata;
 
   return (
     <Menu placement="bottom-end">
@@ -93,7 +92,7 @@ export default function AvatarDropdown({}) {
           </Link>
         </MenuGroup>
         <MenuGroup title="Cài đặt">
-          <Link href="/cap-nhat-thong-tin">
+          <Link href="/me/thong-tin">
             <a>
               <MenuItem
                 icon={

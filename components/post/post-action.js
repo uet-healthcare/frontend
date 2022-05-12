@@ -1,4 +1,3 @@
-import { auth } from "utils/auth";
 import {
   Flex,
   Icon,
@@ -24,7 +23,7 @@ export default function PostAction({ post }) {
 
   if (
     !userState.isLoggedIn ||
-    userState.data.user_metadata.username !== post.author.username
+    userState.metadata.username !== post.author.username
   ) {
     return null;
   }
@@ -76,10 +75,12 @@ export default function PostAction({ post }) {
                       },
                     })
                     .then((response) => {
+                      const responseData = response.data;
                       if (
                         response.status === 200 &&
-                        response.data &&
-                        response.data.rows_deleted > 0
+                        responseData &&
+                        responseData.success &&
+                        responseData.data.rows_deleted > 0
                       ) {
                         resolve();
                         toast({
@@ -87,7 +88,7 @@ export default function PostAction({ post }) {
                           status: "success",
                           isClosable: true,
                         });
-                        router.back();
+                        router.push("/");
                       } else {
                         toast({
                           title: "Đã có lỗi xảy ra",

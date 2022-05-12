@@ -37,7 +37,7 @@ export default function SignUps() {
         auth
           .login(user.email, user.password, true)
           .then(() => {
-            window.open("/cap-nhat-thong-tin", "_self");
+            window.open("/me/thong-tin/khoi-tao", "_self");
           })
           .catch((error) => {
             toast({

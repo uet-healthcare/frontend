@@ -26,7 +26,7 @@ const h2Render = ({ node, children, className, ...props }) => (
     as="h3"
     fontWeight="bold"
     fontFamily="heading"
-    fontSize={{ base: "lg", sm: "2xl" }}
+    fontSize={{ base: "xl", sm: "2xl" }}
     lineHeight="normal"
     color="gray.800"
     {...props}
@@ -84,8 +84,7 @@ const components = {
       fontFamily="heading"
       fontWeight="extrabold"
       py={{ base: "1", sm: "2" }}
-      fontSize={{ base: "lg", sm: "3xl" }}
-      lineHeight={{ sm: "normal" }}
+      fontSize={{ base: "2xl", sm: "3xl" }}
       color="gray.800"
       {...props}
     >
@@ -101,7 +100,13 @@ const components = {
     <Divider {...props}>{children}</Divider>
   ),
   li: ({ node, children, className, ...props }) => (
-    <ListItem sx={{ "& > *+*": { mt: "2" } }} {...props}>
+    <ListItem
+      sx={{ "& > *+*": { mt: "2" } }}
+      fontSize={{ base: "xl", sm: "2xl" }}
+      letterSpacing={{ sm: "-0.025em" }}
+      lineHeight="taller"
+      {...props}
+    >
       {children}
     </ListItem>
   ),
@@ -125,8 +130,9 @@ const components = {
   ),
   p: ({ node, children, className, ...props }) => (
     <Text
-      fontSize={{ sm: "lg" }}
-      lineHeight={{ base: "tall", sm: "taller" }}
+      fontSize={{ base: "xl", sm: "2xl" }}
+      letterSpacing={{ sm: "-0.025em" }}
+      lineHeight="taller"
       {...props}
     >
       {children}

@@ -11,6 +11,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
 import { CommonSEO } from "components/seo";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { auth } from "utils/auth";
 import { getSocialImage } from "utils/utils";
@@ -28,6 +29,7 @@ const schema = yup.object().shape({
 
 export default function ChangePassword() {
   const toast = useToast();
+  const router = useRouter();
 
   const {
     register,
@@ -45,6 +47,7 @@ export default function ChangePassword() {
           status: "success",
           isClosable: true,
         });
+        setTimeout(() => router.push("/"), 500);
       })
       .catch((error) => {
         toast({

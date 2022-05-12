@@ -29,7 +29,7 @@ export default function UserProfile() {
 
   if (!userState.isLoggedIn) return null;
 
-  const pageTitle = userState.data.user_metadata.full_name + " - Trang cá nhân";
+  const pageTitle = userState.metadata.full_name + " - Trang cá nhân";
 
   return (
     <>
@@ -76,16 +76,16 @@ export default function UserProfile() {
           </Text>
           <Button onClick={() => router.push("/viet-bai")}>Viết bài</Button>
         </Flex>
-        <Tabs colorScheme="gray">
-          <TabList>
-            <Tab>Nháp</Tab>
-            <Tab>Công khai</Tab>
+        <Tabs colorScheme="black">
+          <TabList gap="6">
+            <Tab px="0">Nháp</Tab>
+            <Tab px="0">Công khai</Tab>
           </TabList>
           <TabPanels>
-            <TabPanel>
+            <TabPanel px="0">
               <UserPosts status={"draft"} />
             </TabPanel>
-            <TabPanel>
+            <TabPanel px="0">
               <UserPosts status={"public"} />
             </TabPanel>
           </TabPanels>

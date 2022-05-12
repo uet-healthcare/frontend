@@ -85,12 +85,14 @@ export default function WritePost() {
     const fetchData = async () => {
       setIsLoading(true);
       mainAPI
-        .get(`/public/posts?id=${postID}`)
+        .get(`/private/posts?id=${postID}`)
         .then((response) => {
-          if (response.status === 200) {
-            const { title, content } = response.data?.[0];
+          const responseData = response.data;
+          if (response.status === 200 && responseData.success) {
+            const { title, content, status } = responseData.data?.[0];
             setValue("title", title);
             setValue("content", content);
+            setValue("status", status);
             setDefaultContent(content);
           }
         })
@@ -111,11 +113,12 @@ export default function WritePost() {
   }, [postID, setValue, toast]);
 
   const handlePost = (data) => {
-    const { title, content } = data;
+    const { title, content, status } = data;
 
     mainAPI
-      .put("/private/posts", { id: postID, title, content })
+      .put("/private/posts", { id: postID, title, content, status })
       .then((response) => {
+        const responseData = response.data;
         const route = title
           .split("")
           .filter(
@@ -128,13 +131,17 @@ export default function WritePost() {
           .map((el) => (el === " " || el === "." ? "-" : el))
           .join("");
 
-        if (response.status === 200 && response.data.post_id) {
+        if (
+          response.status === 200 &&
+          responseData.success &&
+          responseData.data.post_id
+        ) {
           toast({
             title: "Sửa bài viết thành công",
             status: "success",
             isClosable: true,
           });
-          router.push(`/bai-viet/${route}-${response.data.post_id}`);
+          router.push(`/bai-viet/${route}-${responseData.data.post_id}`);
         } else {
           toast({
             title: "Đã có lỗi xảy ra",

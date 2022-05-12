@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, Image, VStack } from "@chakra-ui/react";
+import { Box, Divider, Flex, Image, Text, VStack } from "@chakra-ui/react";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
 import { CommonSEO } from "components/seo";
 import { useUserState } from "hooks/use-user-state";
@@ -66,7 +66,7 @@ export default function Home({ posts: initialPosts }) {
         alignItems="baseline"
         justifyContent="space-between"
         mx="auto"
-        px={{ base: "16px", sm: 0 }}
+        px={{ base: "4", sm: "8", md: "0" }}
         w="full"
         maxW="container.sm"
       >
@@ -96,7 +96,8 @@ export default function Home({ posts: initialPosts }) {
       <hr />
       <Flex
         maxW="container.sm"
-        mx={{ base: "4", sm: "auto" }}
+        mx="auto"
+        px={{ base: "4", sm: "8", md: "0" }}
         flexDirection="column"
         columnGap="4"
         rowGap={{ base: "4", sm: "8" }}
@@ -104,8 +105,8 @@ export default function Home({ posts: initialPosts }) {
         color="gray.900"
         fontSize={{ sm: "lg" }}
       >
-        <VStack divider={<Divider />} mt={{ sm: "3" }}>
-          {posts &&
+        <VStack divider={<Divider />} mt={{ base: "4", sm: "8" }}>
+          {posts && posts.length > 0 ? (
             posts.map((post) => (
               <Fragment key={post.post_id}>
                 <VStack alignItems="left" gap="1" py="5" w="full">
@@ -124,7 +125,11 @@ export default function Home({ posts: initialPosts }) {
                       )}
                     >
                       <a>
-                        <Box as="span" _hover={{ textDecoration: "underline" }}>
+                        <Box
+                          as="span"
+                          _hover={{ textDecoration: "underline" }}
+                          fontSize={{ base: "xl", sm: "2xl" }}
+                        >
                           {post.title}
                         </Box>
                       </a>
@@ -182,7 +187,10 @@ export default function Home({ posts: initialPosts }) {
                   </Flex>
                 </VStack>
               </Fragment>
-            ))}
+            ))
+          ) : (
+            <Text py="8">Chưa có bài viết nào.</Text>
+          )}
         </VStack>
       </Flex>
     </>
@@ -191,18 +199,19 @@ export default function Home({ posts: initialPosts }) {
 
 export async function getServerSideProps() {
   const limit = 10;
-  const { data: posts } = await mainAPI.get(`/public/posts?limit=${limit}`);
-
+  const response = await mainAPI.get(`/public/posts?limit=${limit}`);
+  const responseData = response.data;
   return {
     props: {
-      posts: posts
-        ? posts.map((el) => ({
-            ...el,
-            created_at: Intl.DateTimeFormat("vi-VN", {
-              dateStyle: "long",
-            }).format(new Date(el.created_at)),
-          }))
-        : null,
+      posts:
+        response.status === 200 && responseData?.success
+          ? responseData.data.map((el) => ({
+              ...el,
+              created_at: Intl.DateTimeFormat("vi-VN", {
+                dateStyle: "long",
+              }).format(new Date(el.created_at)),
+            }))
+          : null,
     },
   };
 }

@@ -6,6 +6,22 @@ import {
 
 export const chakraExtendedTheme = extendTheme(
   {
+    sizes: {
+      ...base.space,
+      container: {
+        sm: "692px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+      },
+    },
+    breakpoints: {
+      sm: "30em",
+      md: "48em",
+      lg: "68em",
+      xl: "80em",
+      "2xl": "96em",
+    },
     colors: {
       brand: {
         50: "#fdd9df",
@@ -27,7 +43,7 @@ export const chakraExtendedTheme = extendTheme(
     styles: {},
   },
   withDefaultColorScheme({
-    colorScheme: "brand",
+    colorScheme: "gray",
     components: ["Button"],
   })
 );

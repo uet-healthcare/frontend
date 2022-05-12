@@ -39,10 +39,12 @@ export const suggestUsername = async (fullname) => {
   for (let attempt = 0; attempt < 1000; attempt++) {
     const tryUsername = attempt === 0 ? base : `${base}${attempt}`;
     try {
-      const { data } = await mainAPI.post(`/private/settings/username_check`, {
+      const response = await mainAPI.post(`/private/settings/username_check`, {
         username: tryUsername,
       });
-      if (data.is_available) {
+      const responseData = response.data;
+
+      if (responseData.data.is_available) {
         return tryUsername;
       }
     } catch (error) {
@@ -76,4 +78,12 @@ export const generateRandomFileName = (file) => {
     nameTokens.length > 1 ? `.${nameTokens[nameTokens.length - 1]}` : "";
 
   return `${currentDate}-${now}-${randomString}${ext}`;
+};
+
+export const reduceContent = (content) => {
+  let finalContent = content.trim();
+  finalContent = finalContent.endsWith("\\")
+    ? finalContent.substring(0, finalContent.length - 1)
+    : finalContent;
+  return finalContent;
 };

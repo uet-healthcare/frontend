@@ -19,20 +19,12 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CommonSEO } from "components/seo";
-import { getSocialImage } from "utils/utils";
+import { getSocialImage, reduceContent } from "utils/utils";
 
 const schemas = yup.object().shape({
   title: yup.string().required("Bạn chưa viết tiêu đề"),
   content: yup.string().required("Bạn chưa viết nội dung"),
 });
-
-const reduceContent = (content) => {
-  let finalContent = content.trim();
-  finalContent = finalContent.endsWith("\\")
-    ? finalContent.substring(0, finalContent.length - 1)
-    : finalContent;
-  return finalContent;
-};
 
 export default function WritePost() {
   const router = useRouter();
@@ -46,6 +38,8 @@ export default function WritePost() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [changeCount, setChangeCount] = useState(0);
+  const [isPosting, setIsPosting] = useState(false);
+  const timeoutDraftRef = useRef();
 
   const headerRef = useRef();
 
@@ -69,7 +63,6 @@ export default function WritePost() {
 
     const saveDraft = async () => {
       setIsSaving(true);
-      console.log("send", { _title, _content });
       mainAPI
         .put("/private/posts", {
           id: postID,
@@ -78,7 +71,12 @@ export default function WritePost() {
           status: "draft",
         })
         .then((response) => {
-          if (response.status === 200 && response.data.post_id) {
+          const responseData = response.data;
+          if (
+            response.status === 200 &&
+            responseData.success &&
+            responseData.data.post_id
+          ) {
             setIsSaved(true);
           } else {
             toast({
@@ -98,18 +96,17 @@ export default function WritePost() {
         });
     };
 
-    console.log(changeCount);
     if (changeCount >= 30) {
       saveDraft();
       setChangeCount(0);
     }
 
-    let timeoutID = setTimeout(() => {
+    timeoutDraftRef.current = setTimeout(() => {
       saveDraft();
       setChangeCount(0);
-    }, 1200);
+    }, 1000);
 
-    return () => clearTimeout(timeoutID);
+    return () => clearTimeout(timeoutDraftRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, _title, _content]);
 
@@ -146,8 +143,9 @@ export default function WritePost() {
       mainAPI
         .post(`/private/posts`)
         .then((response) => {
-          if (response.status === 200) {
-            const { post_id } = response.data;
+          const responseData = response.data;
+          if (response.status === 200 && responseData.success) {
+            const { post_id } = responseData.data;
             if (post_id) {
               router.replace(`/viet-bai?id=${post_id}`);
             }
@@ -174,8 +172,9 @@ export default function WritePost() {
       mainAPI
         .get(`/private/posts?id=${postID}`)
         .then((response) => {
-          if (response.status === 200) {
-            const { title, content } = response.data?.[0];
+          const responseData = response.data;
+          if (response.status === 200 && responseData.success) {
+            const { title, content } = responseData.data?.[0];
             setValue("title", title);
             setValue("content", content);
             setDefaultContent(content);
@@ -198,11 +197,14 @@ export default function WritePost() {
   }, [router, postID, setValue, toast]);
 
   const handlePost = (status) => (data) => {
+    clearTimeout(timeoutDraftRef.current);
     const { title, content } = data;
 
+    setIsPosting(true);
     mainAPI
       .put("/private/posts", { id: postID, title, content, status })
       .then((response) => {
+        const responseData = response.data;
         const route = title
           .split("")
           .filter(
@@ -215,11 +217,15 @@ export default function WritePost() {
           .map((el) => (el === " " || el === "." ? "-" : el))
           .join("");
 
-        if (response.status === 200 && response.data.post_id) {
+        if (
+          response.status === 200 &&
+          responseData.success &&
+          responseData.data.post_id
+        ) {
           if (status === "draft") {
             router.push(`/me/bai-viet`);
           } else {
-            router.push(`/bai-viet/${route}-${response.data.post_id}`);
+            router.push(`/bai-viet/${route}-${responseData.data.post_id}`);
           }
         } else {
           toast({
@@ -233,7 +239,8 @@ export default function WritePost() {
       })
       .catch((error) => {
         console.error("handlePost catch", error.code);
-      });
+      })
+      .finally(() => setIsPosting(false));
   };
 
   return (
@@ -305,7 +312,7 @@ export default function WritePost() {
                   </Flex>
                 </Flex>
                 <Flex gap="2" alignItems="center">
-                  <Button type="submit" size="sm">
+                  <Button type="submit" size="sm" isLoading={isPosting}>
                     Đăng bài
                   </Button>
                 </Flex>
