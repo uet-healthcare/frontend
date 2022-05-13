@@ -105,8 +105,8 @@ export default function PostDetail({ post }) {
                       w="8"
                       h="8"
                       borderRadius="lg"
-                      backgroundColor="red.50"
-                      color="red.800"
+                      backgroundColor="gray.100"
+                      color="gray.800"
                     >
                       {post?.author?.avatar_url ? (
                         // eslint-disable-next-line

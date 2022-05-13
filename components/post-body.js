@@ -103,7 +103,6 @@ const components = {
     <ListItem
       sx={{ "& > *+*": { mt: "2" } }}
       fontSize={{ base: "xl", sm: "2xl" }}
-      letterSpacing={{ sm: "-0.025em" }}
       lineHeight="taller"
       {...props}
     >
@@ -129,12 +128,7 @@ const components = {
     </UnorderedList>
   ),
   p: ({ node, children, className, ...props }) => (
-    <Text
-      fontSize={{ base: "xl", sm: "2xl" }}
-      letterSpacing={{ sm: "-0.025em" }}
-      lineHeight="taller"
-      {...props}
-    >
+    <Text fontSize={{ base: "xl", sm: "2xl" }} lineHeight="taller" {...props}>
       {children}
     </Text>
   ),

@@ -102,7 +102,7 @@ export default function UserProfile({ userMetadata, posts }) {
                   <Box as="span" color="gray.700">
                     vietlach
                   </Box>
-                  <Box as="span" color="red.400">
+                  <Box as="span" color="gray.500">
                     .vn
                   </Box>
                 </Box>
@@ -149,6 +149,7 @@ export default function UserProfile({ userMetadata, posts }) {
                 backgroundColor="gray.100"
                 color="gray.700"
                 fontSize="2xl"
+                display={{ base: "block", lg: "none" }}
               >
                 {userMetadata.avatar_url ? (
                   // eslint-disable-next-line

@@ -67,7 +67,7 @@ export default function SignIn() {
               <Box as="span" color="gray.700">
                 vietlach
               </Box>
-              <Box as="span" color="red.400">
+              <Box as="span" color="gray.500">
                 .vn
               </Box>
             </Box>

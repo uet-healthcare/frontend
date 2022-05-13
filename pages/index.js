@@ -63,7 +63,7 @@ export default function Home({ posts: initialPosts }) {
         ogImage={getSocialImage()}
       />
       <Flex
-        alignItems="baseline"
+        alignItems="center"
         justifyContent="space-between"
         mx="auto"
         px={{ base: "4", sm: "8", md: "0" }}
@@ -72,17 +72,15 @@ export default function Home({ posts: initialPosts }) {
       >
         <Link href="/">
           <a>
-            <Box py="3" fontSize="xl" fontWeight="bold">
-              <Box as="span" color="gray.700">
-                vietlach
+            <Box py="3" fontSize="3xl" fontWeight="bold">
+              <Box as="span" fontFamily="heading">
+                Vietlach
               </Box>
-              <Box as="span" color="red.400">
-                .vn
-              </Box>
+              <Box as="span">.</Box>
             </Box>
           </a>
         </Link>
-        <Flex alignItems="center" gap="3" fontSize="sm" color="gray.600">
+        <Flex alignItems="center" gap="3" color="gray.600">
           <Link href={userState.isLoggedIn ? "/me/bai-viet" : "/dang-nhap"}>
             <a>
               <Box _hover={{ color: "gray.900" }}>
@@ -93,7 +91,7 @@ export default function Home({ posts: initialPosts }) {
           {userState.isLoggedIn && <AvatarDropdown />}
         </Flex>
       </Flex>
-      <hr />
+      <hr borderColor="white" />
       <Flex
         maxW="container.sm"
         mx="auto"
@@ -155,8 +153,8 @@ export default function Home({ posts: initialPosts }) {
                                 w="8"
                                 h="8"
                                 borderRadius="lg"
-                                backgroundColor="red.50"
-                                color="red.800"
+                                backgroundColor="gray.100"
+                                color="gray.800"
                               >
                                 {post.author.avatar_url ? (
                                   // eslint-disable-next-line

@@ -27,8 +27,8 @@ export default function AvatarDropdown({}) {
         borderRadius="lg"
         w="7"
         h="7"
-        backgroundColor="red.50"
-        color="red.800"
+        backgroundColor="gray.100"
+        color="gray.800"
       >
         G
       </Flex>
@@ -46,8 +46,8 @@ export default function AvatarDropdown({}) {
           borderRadius="lg"
           w="7"
           h="7"
-          backgroundColor="red.50"
-          color="red.800"
+          backgroundColor="gray.100"
+          color="gray.800"
         >
           {metadata?.avatar_url ? (
             <Image
