@@ -147,9 +147,10 @@ export default function UserProfile({ userMetadata, posts }) {
                 h="24"
                 borderRadius="full"
                 backgroundColor="gray.100"
-                color="gray.700"
-                fontSize="2xl"
-                display={{ base: "block", lg: "none" }}
+                color="gray.400"
+                fontSize="4xl"
+                fontWeight="semibold"
+                display={{ base: "flex", lg: "none" }}
               >
                 {userMetadata.avatar_url ? (
                   // eslint-disable-next-line
@@ -233,8 +234,9 @@ export default function UserProfile({ userMetadata, posts }) {
               h="24"
               borderRadius="full"
               backgroundColor="gray.100"
-              color="gray.700"
-              fontSize="2xl"
+              color="gray.400"
+              fontSize="5xl"
+              fontWeight="semibold"
             >
               {userMetadata.avatar_url ? (
                 // eslint-disable-next-line
