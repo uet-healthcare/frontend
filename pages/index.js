@@ -133,7 +133,14 @@ export default function Home({ posts: initialPosts }) {
                       </a>
                     </Link>
                   </Box>
-                  <div>{post.content}...</div>
+                  <div>
+                    {post.content
+                      .trim()
+                      .split("\n")
+                      .filter((el) => !el.includes("http"))
+                      .join("\n")}
+                    ...
+                  </div>
                   <Flex spacing="4" alignItems="center">
                     <Flex
                       flexWrap="wrap"
