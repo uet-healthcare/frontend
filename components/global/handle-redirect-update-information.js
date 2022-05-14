@@ -8,8 +8,10 @@ import { setupStorage } from "utils/storage";
 export function HandleRedirectUpdateInformation() {
   const router = useRouter();
   const userState = useUserState();
+  console.log(router.asPath);
 
   useEffect(() => {
+    if (!router.isReady) return;
     const path = router.asPath;
 
     if (path.includes("#access_token=")) {

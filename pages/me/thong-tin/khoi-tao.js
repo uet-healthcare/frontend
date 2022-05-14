@@ -138,7 +138,6 @@ export default function UpdateInfo() {
       return;
     }
     if (userState.metadata.username) return;
-    console.log("xx");
     startCheckUsername();
     timeoutID = setTimeout(async () => {
       const newUsername = await suggestUsername(formValues.fullname);

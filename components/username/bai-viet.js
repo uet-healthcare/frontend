@@ -1,9 +1,12 @@
 import { Box, Divider, Flex, VStack } from "@chakra-ui/react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { Fragment } from "react";
 import { getPostPath } from "utils/utils";
 
 export default function UserPublicPosts({ posts }) {
+  const router = useRouter();
+
   if (!posts || posts.length === 0) {
     return "Chưa có bài viết nào.";
   }
@@ -28,7 +31,11 @@ export default function UserPublicPosts({ posts }) {
                     post.title
                   )}
                 >
-                  <a>
+                  <a
+                    onClick={() =>
+                      window.localStorage.setItem("_vlcfp", router.asPath)
+                    }
+                  >
                     <Box
                       as="span"
                       _hover={{ textDecoration: "underline" }}

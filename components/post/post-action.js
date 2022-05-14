@@ -8,7 +8,7 @@ import {
   MenuList,
   useToast,
 } from "@chakra-ui/react";
-import { BiEdit, BiMenu, BiTrash } from "react-icons/bi";
+import { BiDotsHorizontalRounded, BiEdit, BiTrash } from "react-icons/bi";
 import Link from "next/link";
 import { useUserState } from "hooks/use-user-state";
 import { useGlobalConfirmDialog } from "hooks/use-global";
@@ -34,7 +34,7 @@ export default function PostAction({ post }) {
         <IconButton
           colorScheme="gray"
           variant="ghost"
-          as={BiMenu}
+          as={BiDotsHorizontalRounded}
           w="6"
           h="6"
           color="gray.400"

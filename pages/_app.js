@@ -6,19 +6,27 @@ import { chakraExtendedTheme } from "styles/theme/theme";
 import { CustomAxiosInterceptors } from "components/global/custom-axios-interceptors";
 import { HandleRouteChange } from "components/global/handle-route-change";
 import { HandleRedirectUpdateInformation } from "components/global/handle-redirect-update-information";
-import React from "react";
+import React, { useEffect } from "react";
 import GlobalAlertDialog from "components/global/global-alert-dialog";
 import GlobalConfirmDialog from "components/global/global-confirm-dialog";
-import Head from "next/head";
 import Script from "next/script";
+import { useRouter } from "next/router";
 
 export const appContext = React.createContext(null);
 appContext.displayName = "GlobalContext";
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+
   const [globalState, setGlobalState] = React.useState({
     alert: null,
   });
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    // remove back path from localStorage
+    window.localStorage.removeItem("_vlcfp");
+  }, [router]);
 
   return (
     <>
