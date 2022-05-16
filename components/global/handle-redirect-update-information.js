@@ -15,17 +15,21 @@ export function HandleRedirectUpdateInformation() {
     const path = router.asPath;
 
     if (path.includes("#access_token=")) {
-      const infos = path
-        .split("#")
-        .at(-1)
-        .split("&")
-        .reduce((accum, pair) => {
+      try {
+        const splittedBySharp = path.split("#");
+        const afterSharp = splittedBySharp[splittedBySharp.length - 1];
+        const splittedByAmp = afterSharp.split("&");
+        const infos = splittedByAmp.reduce((accum, pair) => {
           const [key, value] = pair.split("=");
           return { ...accum, [key]: value };
         }, {});
-      auth.createUser(infos, true).then(() => {
-        window.open("/", "_self");
-      });
+        auth.createUser(infos, true).then(() => {
+          window.open("/", "_self");
+        });
+      } catch (error) {
+        alert("Đã có lỗi xảy ra.");
+        window.open("/dang-nhap", "_self");
+      }
     } else {
       const currentUser = auth.currentUser();
       if (currentUser) {
