@@ -46,10 +46,7 @@ export default function UserProfile() {
           <a>
             <Box py="3" fontSize="xl" fontWeight="bold">
               <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="gray.500">
-                .vn
+                Healthcare
               </Box>
             </Box>
           </a>
@@ -72,9 +69,9 @@ export default function UserProfile() {
       >
         <Flex justifyContent="space-between">
           <Text fontSize="2xl" fontWeight="bold">
-            Bài viết của bạn
+            Chủ đề của bạn
           </Text>
-          <Button onClick={() => router.push("/viet-bai")}>Viết bài</Button>
+          <Button onClick={() => router.push("/viet-bai")}>Tạo chủ đề</Button>
         </Flex>
         <Tabs colorScheme="black">
           <TabList gap="6">

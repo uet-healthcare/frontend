@@ -55,7 +55,7 @@ function handler(req, res) {
 
   ctx.font = "bold 40px" + " " + fontBody;
   ctx.fillStyle = "#718096";
-  ctx.fillText("vietlach.vn", 70, 100);
+  ctx.fillText("Healthcare.vn", 70, 100);
 
   if (xPath) {
     ctx.font = "bold 40px" + " " + fontBody;

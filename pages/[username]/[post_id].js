@@ -3,22 +3,62 @@ import { useRouter } from "next/router";
 import { getPostIDFromPath, getSocialImage } from "utils/utils";
 import { mainAPI } from "utils/axios";
 import Link from "next/link";
-import { useEffect } from "react";
-import { Box, Flex, Image } from "@chakra-ui/react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  Image,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import { BackButton } from "components/back-button";
 import { CommonSEO } from "components/seo";
 import PostAction from "components/post/post-action";
 
 export default function PostDetail({ post }) {
   const router = useRouter();
+  const [comments, setComments] = useState([]);
+  const [currentParentCommentId, setCurrentParentCommentId] = useState(null);
+  const [currentComment, setCurrentComment] = useState("");
+
+  const fetchComments = useCallback(
+    () =>
+      mainAPI
+        .get(`/public/comments?post_id=${post.post_id}`)
+        .then((response) => {
+          setComments(response.data.data);
+        }),
+    [post]
+  );
 
   useEffect(() => {
+    if (!router.isReady) return;
     if (router.query.username !== post.author.username) {
       router.replace(`/${post.author.username}/${router.query.post_id}`);
     }
-  }, [router, post]);
 
-  const pageTitle = post.title + " - Vietlach";
+    fetchComments();
+  }, [router, post, fetchComments]);
+
+  const handleComment = () => {
+    const data = {
+      post_id: post.post_id,
+      content: currentComment,
+    };
+
+    if (currentParentCommentId) {
+      data.parent_comment_id = currentParentCommentId;
+    }
+
+    mainAPI.post(`/private/comments`, data).then((response) => {
+      fetchComments();
+      setCurrentComment("");
+    });
+  };
+
+  const pageTitle = post.title + " - Healthcare";
   const pageDescription =
     (post.content
       .split("\n")
@@ -37,6 +77,8 @@ export default function PostDetail({ post }) {
     title: post.title,
   });
 
+  console.log(comments);
+
   return (
     <>
       <CommonSEO
@@ -46,7 +88,8 @@ export default function PostDetail({ post }) {
         ogImage={socialImage}
       />
       <Flex
-        justifyContent="center"
+        flexDirection="column"
+        alignItems="center"
         px="4"
         pt={{ base: "2", sm: "8" }}
         pb={{ base: "4", sm: "10" }}
@@ -69,7 +112,7 @@ export default function PostDetail({ post }) {
                     fontWeight="bold"
                     _hover={{ color: "gray.600" }}
                   >
-                    vietlach.vn
+                    healthcare
                   </Box>
                 </a>
               </Link>
@@ -134,6 +177,47 @@ export default function PostDetail({ post }) {
           </Flex>
           <Flex flexDirection="column" gap={{ base: "4", sm: "6" }}>
             <PostBody>{post.content}</PostBody>
+          </Flex>
+          <Flex
+            flexDirection="column"
+            mt="5"
+            py="5"
+            borderTop="1px"
+            borderColor="gray.200"
+            w="full"
+          >
+            <Box w="full">
+              <Box fontWeight="semibold">
+                Bình luận ({comments?.length ?? 0})
+              </Box>
+              <Textarea
+                w="full"
+                rows="3"
+                value={currentComment}
+                onChange={(e) => setCurrentComment(e.target.value)}
+              />
+              <Flex mt="2" justifyContent="end">
+                <Button onClick={handleComment}>Gửi bình luận</Button>
+              </Flex>
+            </Box>
+            <Flex flexDirection="column" mt="6" gap="6">
+              {comments.map((comment) => (
+                <Fragment key={comment.comment_id}>
+                  <Flex flexDirection="column" gap="2">
+                    <Flex alignItems="center" gap="2" fontSize="md">
+                      <Avatar src={comment.author.avatar_url} size="sm" />
+                      <Text>{comment.author.full_name}</Text>
+                      <Box>·</Box>
+                      {Intl.DateTimeFormat("vi-VN", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      }).format(new Date(comment.created_at))}
+                    </Flex>
+                    <Flex whiteSpace="pre-wrap">{comment.content}</Flex>
+                  </Flex>
+                </Fragment>
+              ))}
+            </Flex>
           </Flex>
         </Flex>
       </Flex>

@@ -100,10 +100,7 @@ export default function UserProfile({ userMetadata, posts }) {
               <a>
                 <Box py="3" fontSize="xl" fontWeight="bold">
                   <Box as="span" color="gray.700">
-                    vietlach
-                  </Box>
-                  <Box as="span" color="gray.500">
-                    .vn
+                    Healthcare
                   </Box>
                 </Box>
               </a>

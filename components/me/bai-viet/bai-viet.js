@@ -49,7 +49,7 @@ export default function UserPosts({ status: postStatus }) {
               </Fragment>
             ))
           ) : (
-            <Flex>Bạn chưa có bài viết nào</Flex>
+            <Flex>Bạn chưa có chủ đề nào</Flex>
           )}
         </VStack>
       </Flex>

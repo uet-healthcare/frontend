@@ -62,7 +62,7 @@ export default function ChangePassword() {
   return (
     <>
       <CommonSEO
-        title="Đổi mật khẩu - Vietlach"
+        title="Đổi mật khẩu - Healthcare"
         ogImage={getSocialImage()}
         noIndex={true}
       />
@@ -78,10 +78,7 @@ export default function ChangePassword() {
           <a>
             <Box py="3" fontSize="xl" fontWeight="bold">
               <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="gray.500">
-                .vn
+                Healthcare
               </Box>
             </Box>
           </a>

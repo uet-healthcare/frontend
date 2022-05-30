@@ -49,7 +49,7 @@ export default function SignIn() {
   return (
     <>
       <CommonSEO
-        title="Đăng nhập vào Vietlach"
+        title="Đăng nhập vào Healthcare"
         ogType="website"
         ogImage={getSocialImage()}
       />
@@ -65,10 +65,7 @@ export default function SignIn() {
           <a>
             <Box py="3" fontSize="xl" fontWeight="bold">
               <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="gray.500">
-                .vn
+                Healthcare
               </Box>
             </Box>
           </a>

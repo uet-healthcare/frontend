@@ -1,10 +1,29 @@
-import { Box, Divider, Flex, Image, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Divider,
+  Flex,
+  Icon,
+  Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  VStack,
+} from "@chakra-ui/react";
 import AvatarDropdown from "components/global/header-avatar-dropdown";
 import { CommonSEO } from "components/seo";
 import { useUserState } from "hooks/use-user-state";
 import Link from "next/link";
 
 import { Fragment, useEffect, useState } from "react";
+import { BiSearch } from "react-icons/bi";
 import { mainAPI } from "utils/axios";
 import { getPostPath, getSocialImage } from "utils/utils";
 
@@ -13,6 +32,7 @@ const POSTS_PER_PAGE = 10;
 export default function Home({ posts: initialPosts }) {
   const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState(initialPosts);
+  const [filter, setFilter] = useState("");
   const userState = useUserState();
 
   useEffect(() => {
@@ -54,10 +74,15 @@ export default function Home({ posts: initialPosts }) {
       });
   }, [posts, isLoading]);
 
+  const filteredPosts =
+    posts && posts.length > 0
+      ? posts.filter((post) => post.title.includes(filter))
+      : [];
+
   return (
     <>
       <CommonSEO
-        title={"Vietlach"}
+        title={"Healthcare"}
         description="Chia sẻ góc nhìn về mọi thứ trong cuộc sống quanh bạn."
         ogType="website"
         ogImage={getSocialImage()}
@@ -68,23 +93,22 @@ export default function Home({ posts: initialPosts }) {
         mx="auto"
         px={{ base: "4", sm: "8", md: "0" }}
         w="full"
-        maxW="container.sm"
+        maxW="container.lg"
       >
         <Link href="/">
           <a>
             <Box py="3" fontSize="3xl" fontWeight="bold">
               <Box as="span" fontFamily="heading">
-                Vietlach
+                Healthcare
               </Box>
-              <Box as="span">.</Box>
             </Box>
           </a>
         </Link>
         <Flex alignItems="center" gap="3" color="gray.600">
-          <Link href={userState.isLoggedIn ? "/me/bai-viet" : "/dang-nhap"}>
+          <Link href={userState.isLoggedIn ? "/viet-bai" : "/dang-nhap"}>
             <a>
               <Box _hover={{ color: "gray.900" }}>
-                {userState.isLoggedIn ? "Viết bài" : "Đăng nhập"}
+                {userState.isLoggedIn ? "Đặt câu hỏi" : "Đăng nhập"}
               </Box>
             </a>
           </Link>
@@ -92,8 +116,9 @@ export default function Home({ posts: initialPosts }) {
         </Flex>
       </Flex>
       <hr borderColor="white" />
+
       <Flex
-        maxW="container.sm"
+        maxW="container.lg"
         mx="auto"
         px={{ base: "4", sm: "8", md: "0" }}
         flexDirection="column"
@@ -104,98 +129,62 @@ export default function Home({ posts: initialPosts }) {
         fontSize={{ sm: "lg" }}
       >
         <VStack divider={<Divider />} mt={{ base: "4", sm: "8" }}>
-          {posts && posts.length > 0 ? (
-            posts.map((post) => (
-              <Fragment key={post.post_id}>
-                <VStack alignItems="left" gap="1" py="5" w="full">
-                  <Box
-                    as="span"
-                    fontSize="xl"
-                    fontWeight="bold"
-                    color="gray.800"
-                    fontFamily="heading"
-                  >
-                    <Link
-                      href={getPostPath(
-                        post.post_id,
-                        post.author.username,
-                        post.title
-                      )}
-                    >
-                      <a>
-                        <Box
-                          as="span"
-                          _hover={{ textDecoration: "underline" }}
-                          fontSize={{ base: "xl", sm: "2xl" }}
-                        >
-                          {post.title}
-                        </Box>
-                      </a>
-                    </Link>
-                  </Box>
-                  <div>
-                    {post.content
-                      .trim()
-                      .split("\n")
-                      .filter((el) => !el.includes("http"))
-                      .join("\n")}
-                    ...
-                  </div>
-                  <Flex spacing="4" alignItems="center">
-                    <Flex
-                      flexWrap="wrap"
-                      alignItems="center"
-                      gap="2.5"
-                      fontSize="sm"
-                      color="gray.600"
-                    >
-                      <Link href={`/${post.author.username}`}>
-                        <a>
-                          <Flex alignItems="center" gap="2.5" role="group">
-                            <Flex alignItems="center" gap="2.5">
-                              <Flex
-                                alignItems="center"
-                                justifyContent="center"
-                                flexShrink="0"
-                                w="8"
-                                h="8"
-                                borderRadius="lg"
-                                backgroundColor="gray.100"
-                                color="gray.800"
-                              >
-                                {post.author.avatar_url ? (
-                                  // eslint-disable-next-line
-                                  <Image
-                                    src={post.author.avatar_url}
-                                    w="8"
-                                    h="8"
-                                    borderRadius="lg"
-                                    referrerPolicy="no-referrer"
-                                    alt={post.author.full_name + "'s avatar"}
-                                  />
-                                ) : (
-                                  post.author.full_name?.[0]
-                                )}
-                              </Flex>
-                              <Box
-                                _groupHover={{ textDecoration: "underline" }}
-                              >
-                                {post.author.full_name}
-                              </Box>
-                            </Flex>
-                          </Flex>
-                        </a>
-                      </Link>
-                      <div>&#183;</div>
-                      <div>{post.created_at}</div>
-                    </Flex>
-                  </Flex>
-                </VStack>
-              </Fragment>
-            ))
-          ) : (
-            <Text py="8">Chưa có bài viết nào.</Text>
-          )}
+          <Box w="full" mb="4">
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <Icon as={BiSearch} color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Tìm kiếm câu hỏi..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+            </InputGroup>
+          </Box>
+          <TableContainer w="full">
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Câu hỏi</Th>
+                  <Th>Đăng bởi</Th>
+                  <Th>Ngày đăng</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {filteredPosts.length > 0 ? (
+                  filteredPosts.map((post) => (
+                    <Fragment key={post.post_id}>
+                      <Tr>
+                        <Td _hover={{ textDecoration: "underline" }}>
+                          <Link
+                            href={getPostPath(
+                              post.post_id,
+                              post.author.username,
+                              post.title
+                            )}
+                          >
+                            <a>{post.title}</a>
+                          </Link>
+                        </Td>
+                        <Td _hover={{ textDecoration: "underline" }}>
+                          <Link href={`/${post.author.username}`}>
+                            <a>{post.author.full_name}</a>
+                          </Link>
+                        </Td>
+                        <Td>{post.created_at}</Td>
+                      </Tr>
+                    </Fragment>
+                  ))
+                ) : (
+                  <Tr>
+                    <Td colSpan={3} textAlign="left">
+                      Chưa có câu hỏi nào.
+                    </Td>
+                  </Tr>
+                )}
+              </Tbody>
+            </Table>
+          </TableContainer>
         </VStack>
       </Flex>
     </>
@@ -213,7 +202,7 @@ export async function getServerSideProps() {
           ? responseData.data.map((el) => ({
               ...el,
               created_at: Intl.DateTimeFormat("vi-VN", {
-                dateStyle: "long",
+                dateStyle: "short",
               }).format(new Date(el.created_at)),
             }))
           : null,

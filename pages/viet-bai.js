@@ -245,7 +245,7 @@ export default function WritePost() {
 
   return (
     <>
-      <CommonSEO title="Viết bài mới - Vietlach" ogImage={getSocialImage()} />
+      <CommonSEO title="Viết bài mới - Healthcare" ogImage={getSocialImage()} />
       <Box h="100vh" position="relative">
         <Flex
           justifyContent="space-between"

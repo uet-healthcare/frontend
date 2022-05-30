@@ -159,7 +159,7 @@ export default function WritePost() {
 
   return (
     <>
-      <CommonSEO title="Sửa bài viết - Vietlach" ogImage={getSocialImage()} />
+      <CommonSEO title="Sửa bài viết - Healthcare" ogImage={getSocialImage()} />
       <Box h="100vh" position="relative">
         <Flex
           alignItems="baseline"

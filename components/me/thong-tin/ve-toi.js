@@ -52,7 +52,7 @@ export default function UpdateAboutMe() {
   return (
     <>
       <CommonSEO
-        title="Cập nhật thông tin tài khoản - Vietlach"
+        title="Cập nhật thông tin tài khoản - Healthcare"
         ogImage={getSocialImage()}
         noIndex={true}
       />

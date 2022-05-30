@@ -32,7 +32,9 @@ export default function GlobalAlertDialog({}) {
               {alertObject?.title || "Đã có lỗi xảy ra"}
             </AlertDialogHeader>
 
-            <AlertDialogBody>{alertObject?.message}</AlertDialogBody>
+            <AlertDialogBody whiteSpace="pre-wrap">
+              {alertObject?.message}
+            </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button colorScheme="gray" ref={cancelRef} onClick={onClose}>

@@ -62,7 +62,7 @@ export default function SignUps() {
   return (
     <>
       <CommonSEO
-        title="Đăng ký tài khoản Vietlach"
+        title="Đăng ký tài khoản Healthcare"
         ogType="website"
         ogImage={getSocialImage()}
       />
@@ -78,10 +78,7 @@ export default function SignUps() {
           <a>
             <Box py="3" fontSize="xl" fontWeight="bold">
               <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="gray.500">
-                .vn
+                Healthcare
               </Box>
             </Box>
           </a>

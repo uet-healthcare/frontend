@@ -162,7 +162,7 @@ export default function UpdateGeneralInfo() {
   return (
     <>
       <CommonSEO
-        title="Cập nhật thông tin tài khoản - Vietlach"
+        title="Cập nhật thông tin tài khoản - Healthcare"
         ogImage={getSocialImage()}
         noIndex={true}
       />
@@ -225,7 +225,7 @@ export default function UpdateGeneralInfo() {
                       fontWeight="semibold"
                       wordBreak="break-all"
                     >
-                      https://vietlach.vn/{formValues.username || "username"}
+                      https://healthcare.vn/{formValues.username || "username"}
                     </Box>
                   </Box>
                   <Flex alignItems="center" gap="3">

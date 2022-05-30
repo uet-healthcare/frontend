@@ -1,5 +1,6 @@
 import { auth } from "utils/auth";
 import {
+  Avatar,
   Flex,
   Icon,
   Image,
@@ -49,17 +50,11 @@ export default function AvatarDropdown({}) {
           backgroundColor="gray.100"
           color="gray.800"
         >
-          {metadata?.avatar_url ? (
-            <Image
-              src={metadata?.avatar_url}
-              flexShrink="0"
-              borderRadius="lg"
-              referrerPolicy="no-referrer"
-              alt={metadata?.full_name + "'s avatar"}
-            />
-          ) : (
-            metadata?.full_name?.[0] || "G"
-          )}
+          <Avatar
+            src={metadata?.avatar_url}
+            name={metadata?.full_name}
+            size="sm"
+          />
         </Flex>
       </MenuButton>
       <MenuList fontSize="sm">
@@ -86,7 +81,20 @@ export default function AvatarDropdown({}) {
                   </Flex>
                 }
               >
-                Bài viết
+                Câu hỏi của tôi
+              </MenuItem>
+            </a>
+          </Link>
+          <Link href={`/kiem-tra-suc-khoe`}>
+            <a>
+              <MenuItem
+                icon={
+                  <Flex alignItems="center">
+                    <Icon as={BiFile} w="3.5" h="3.5" />
+                  </Flex>
+                }
+              >
+                Kiểm tra sức khỏe
               </MenuItem>
             </a>
           </Link>

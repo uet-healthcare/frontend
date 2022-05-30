@@ -187,7 +187,7 @@ export default function UpdateInfo() {
   return (
     <>
       <CommonSEO
-        title="Cập nhật thông tin tài khoản - Vietlach"
+        title="Cập nhật thông tin tài khoản - Healthcare"
         ogImage={getSocialImage()}
         noIndex={true}
       />
@@ -203,10 +203,7 @@ export default function UpdateInfo() {
           <a>
             <Box py="3" fontSize="xl" fontWeight="bold">
               <Box as="span" color="gray.700">
-                vietlach
-              </Box>
-              <Box as="span" color="gray.500">
-                .vn
+                Healthcare
               </Box>
             </Box>
           </a>
@@ -273,7 +270,7 @@ export default function UpdateInfo() {
                       fontWeight="semibold"
                       wordBreak="break-all"
                     >
-                      https://vietlach.vn/{formValues.username || "username"}
+                      https://healthcare.vn/{formValues.username || "username"}
                     </Box>
                   </Box>
                   <Flex alignItems="center" gap="3">
